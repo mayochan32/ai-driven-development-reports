@@ -8,6 +8,15 @@
       "markdown": "reports/001-document-formats-comparison/001-document-formats-comparison.md",
       "html": "reports/001-document-formats-comparison/001-document-formats-comparison.html",
       "manifest": "reports/001-document-formats-comparison/manifest.json"
+    },
+    {
+      "id": "002-sdd-framework-comparison",
+      "title": "SDDフレームワーク比較調査: Kiro / cc-sdd / Spec Kit",
+      "status": "draft",
+      "date": "2026-07-22",
+      "markdown": "reports/002-sdd-framework-comparison/002-sdd-framework-comparison.md",
+      "html": "reports/002-sdd-framework-comparison/002-sdd-framework-comparison.html",
+      "manifest": "reports/002-sdd-framework-comparison/manifest.json"
     }
   ]
 }

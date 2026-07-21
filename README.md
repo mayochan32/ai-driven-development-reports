@@ -14,6 +14,7 @@ MarkdownとHTMLは競合する形式ではありません。Markdownは知識を
 | No. | テーマ | Markdown | HTML |
 |---:|---|---|---|
 | 001 | AI駆動開発における文書・データ・表示形式の比較 | [001-document-formats-comparison.md](reports/001-document-formats-comparison/001-document-formats-comparison.md) | [001-document-formats-comparison.html](reports/001-document-formats-comparison/001-document-formats-comparison.html) |
+| 002 | SDDフレームワーク比較調査: Kiro / cc-sdd / Spec Kit | [002-sdd-framework-comparison.md](reports/002-sdd-framework-comparison/002-sdd-framework-comparison.md) | [002-sdd-framework-comparison.html](reports/002-sdd-framework-comparison/002-sdd-framework-comparison.html) |
 
 ## 基本構成
 

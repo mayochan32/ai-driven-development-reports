@@ -1,0 +1,17 @@
+{
+  "id": "002-sdd-framework-comparison",
+  "title": "SDDフレームワーク比較調査: Kiro / cc-sdd / Spec Kit",
+  "status": "draft",
+  "date": "2026-07-22",
+  "tags": [
+    "ai-driven-development",
+    "spec-driven-development",
+    "sdd",
+    "kiro",
+    "cc-sdd",
+    "spec-kit"
+  ],
+  "summary": "Kiro、cc-sdd、Spec Kitを、公開情報による机上調査、同一要件によるエミュレーション実証、開発担当者視点、選定判断の観点から比較する。",
+  "markdown": "002-sdd-framework-comparison.md",
+  "html": "002-sdd-framework-comparison.html"
+}
