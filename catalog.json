@@ -1,0 +1,13 @@
+{
+  "reports": [
+    {
+      "id": "001-document-formats-comparison",
+      "title": "AI駆動開発における文書・データ・表示形式の比較",
+      "status": "draft",
+      "date": "2026-07-22",
+      "markdown": "reports/001-document-formats-comparison/001-document-formats-comparison.md",
+      "html": "reports/001-document-formats-comparison/001-document-formats-comparison.html",
+      "manifest": "reports/001-document-formats-comparison/manifest.json"
+    }
+  ]
+}

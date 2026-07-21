@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>AI駆動開発における文書・データ・表示形式の比較</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f4ee;
+      --surface: #ffffff;
+      --surface-soft: #fbfaf7;
+      --ink: #1f2428;
+      --muted: #646b73;
+      --line: #d8d0c2;
+      --blue: #2868a8;
+      --green: #2f7d4f;
+      --red: #b64242;
+      --gold: #9b6a1d;
+      --violet: #6750a4;
+      --shadow: 0 10px 28px rgba(31, 36, 40, 0.09);
+      --radius: 8px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    button,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .page {
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: #1f2428;
+      color: #fff;
+      border-bottom: 6px solid var(--green);
+    }
+
+    .masthead-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 28px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #c8d7d0;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 900px;
+      margin: 18px 0 0;
+      color: #edf0ea;
+      font-size: 1.08rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .meta {
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: var(--radius);
+      padding: 8px 10px;
+      color: #f7f4ee;
+      font-size: 0.9rem;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 10px 24px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .nav a {
+      flex: 0 0 auto;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 7px 10px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      background: var(--surface);
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 24px 64px;
+    }
+
+    section {
+      margin: 34px 0;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: clamp(1.45rem, 2.5vw, 2rem);
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 1.06rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    .section-head {
+      max-width: 900px;
+      margin-bottom: 16px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .panel.tight {
+      padding: 14px;
+    }
+
+    .principle {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .principle-item {
+      min-height: 122px;
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--blue);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: var(--surface-soft);
+    }
+
+    .principle-item:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .principle-item:nth-child(3) {
+      border-top-color: var(--gold);
+    }
+
+    .principle-item:nth-child(4) {
+      border-top-color: var(--red);
+    }
+
+    .principle-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    .callout {
+      border-left: 5px solid var(--green);
+      background: #eef7f1;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      font-weight: 700;
+    }
+
+    .decision-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.55fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    select {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      padding: 8px 10px;
+    }
+
+    .recommendation {
+      display: grid;
+      gap: 12px;
+    }
+
+    .recommendation-top {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: var(--surface-soft);
+      min-height: 96px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 1.2rem;
+      line-height: 1.3;
+    }
+
+    .reason-list {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    .format-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .format-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 14px;
+      min-height: 220px;
+    }
+
+    .format-card[data-role="knowledge"] {
+      border-top: 4px solid var(--blue);
+    }
+
+    .format-card[data-role="data"],
+    .format-card[data-role="contract"] {
+      border-top: 4px solid var(--green);
+    }
+
+    .format-card[data-role="view"] {
+      border-top: 4px solid var(--gold);
+    }
+
+    .format-card[data-role="log"] {
+      border-top: 4px solid var(--red);
+    }
+
+    .format-card[data-role="diagram"],
+    .format-card[data-role="analysis"] {
+      border-top: 4px solid var(--violet);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 3px 8px;
+      color: var(--muted);
+      background: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .score {
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      padding: 6px;
+      text-align: center;
+      min-height: 54px;
+    }
+
+    .score b {
+      display: block;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .score span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.74rem;
+      line-height: 1.2;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0 16px;
+    }
+
+    .filter-button,
+    .tab-button,
+    .copy-button {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 38px;
+      padding: 8px 11px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .filter-button[aria-pressed="true"],
+    .tab-button[aria-selected="true"],
+    .copy-button.primary {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .flow-step {
+      position: relative;
+      min-height: 134px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 14px;
+    }
+
+    .flow-step::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      width: 10px;
+      height: 2px;
+      background: var(--line);
+    }
+
+    .flow-step:last-child::after {
+      content: none;
+    }
+
+    .flow-step small {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .tabs {
+      display: grid;
+      gap: 12px;
+    }
+
+    .tab-panel {
+      display: none;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 16px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      font-size: 0.92rem;
+    }
+
+    .data-table th,
+    .data-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .data-table th {
+      background: #ece8df;
+      color: #30363d;
+      font-size: 0.82rem;
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+    }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      min-height: 76px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .check-item input {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--green);
+    }
+
+    .check-item span {
+      display: block;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .check-item small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .status-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      font-weight: 700;
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--red);
+    }
+
+    .status-dot.ready {
+      background: var(--green);
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 0;
+    }
+
+    details + details {
+      margin-top: 10px;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 13px 14px;
+      font-weight: 800;
+    }
+
+    details p,
+    details ul {
+      padding: 0 14px 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #20252a;
+      color: #f3f0e8;
+      font-family: var(--mono);
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    .source-list {
+      display: grid;
+      gap: 8px;
+      padding-left: 1.2rem;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 940px) {
+      .summary-grid,
+      .decision-layout,
+      .recommendation-top {
+        grid-template-columns: 1fr;
+      }
+
+      .principle,
+      .format-grid,
+      .checklist {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-step::after {
+        top: auto;
+        right: auto;
+        left: 20px;
+        bottom: -10px;
+        width: 2px;
+        height: 10px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .masthead-inner,
+      main,
+      .nav-inner {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .principle,
+      .format-grid,
+      .checklist,
+      .score-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .data-table {
+        font-size: 0.84rem;
+      }
+    }
+
+    @media print {
+      .nav,
+      .toolbar,
+      .copy-button {
+        display: none;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      .panel,
+      .format-card,
+      .flow-step,
+      .tab-panel {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="masthead">
+      <div class="masthead-inner">
+        <p class="eyebrow">AI駆動開発 / 形式選定レポート</p>
+        <h1>文書、データ、表示形式を「次の読者」で選ぶ</h1>
+        <p class="lead">Markdown、HTML、JSON、JSON Schema、YAML、TOML、JSONLなどを、正本性・検証可能性・判断コストの観点から比較するためのインタラクティブ版です。</p>
+        <div class="meta-row" aria-label="文書メタ情報">
+          <span class="meta">status: draft</span>
+          <span class="meta">date: 2026-07-22</span>
+          <span class="meta">source: 001-document-formats-comparison.md</span>
+          <span class="meta">external dependencies: none</span>
+        </div>
+      </div>
+    </header>
+
+    <nav class="nav" aria-label="ページ内ナビゲーション">
+      <div class="nav-inner">
+        <a href="#summary">要点</a>
+        <a href="#decision">形式を選ぶ</a>
+        <a href="#formats">形式比較</a>
+        <a href="#architecture">責任分離</a>
+        <a href="#usecases">用途別</a>
+        <a href="#safety">安全条件</a>
+        <a href="#antipatterns">アンチパターン</a>
+        <a href="#decision-json">判断JSON</a>
+      </div>
+    </nav>
+
+    <main>
+      <section id="summary">
+        <div class="section-head">
+          <h2>要点</h2>
+          <p>このレポートの結論は、形式の優劣を一つに決めることではなく、成果物の役割を分けることです。</p>
+        </div>
+        <div class="grid summary-grid">
+          <div class="panel">
+            <div class="callout">Markdownは知識と意図の正本、JSONは処理可能な意味構造、JSON Schemaは契約、HTMLは人間向けの可視化・操作・意思決定インターフェース。</div>
+            <div class="principle" aria-label="形式選定の四原則">
+              <div class="principle-item">
+                <strong>次の読者</strong>
+                <span>AI、RAG、Git、人間の判断者で求める形式は変わる。</span>
+              </div>
+              <div class="principle-item">
+                <strong>正本と表示</strong>
+                <span>長期保存する正本と、人間が確認する表示を分離する。</span>
+              </div>
+              <div class="principle-item">
+                <strong>成果物の寿命</strong>
+                <span>短命ならHTML、長期ならMarkdownやスキーマを重視する。</span>
+              </div>
+              <div class="principle-item">
+                <strong>判断コスト</strong>
+                <span>HTMLは装飾ではなく、確認・比較・操作のために使う。</span>
+              </div>
+            </div>
+          </div>
+          <aside class="panel">
+            <h3>標準構成</h3>
+            <p>説明はMarkdown、設定はTOMLまたはYAML、データはJSON、契約はJSON Schema、履歴はJSONL、図はMermaid、人間の確認と操作はHTML。</p>
+            <div class="badge-row">
+              <span class="badge">正本: Markdown</span>
+              <span class="badge">データ: JSON</span>
+              <span class="badge">契約: Schema</span>
+              <span class="badge">表示: HTML</span>
+              <span class="badge">履歴: JSONL</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="decision">
+        <div class="section-head">
+          <h2>形式を選ぶ</h2>
+          <p>次の読者、成果物の寿命、役割を選ぶと、推奨する正本・表示・補助形式を確認できます。</p>
+        </div>
+        <div class="decision-layout">
+          <div class="panel tight">
+            <div class="field">
+              <label for="reader">次の読者</label>
+              <select id="reader">
+                <option value="human-decision">人間の意思決定者</option>
+                <option value="ai">AI・LLM</option>
+                <option value="rag">RAG・検索基盤</option>
+                <option value="git">Gitレビュー担当者</option>
+                <option value="program">CI・プログラム</option>
+                <option value="editor">人間の編集者</option>
+                <option value="collab">人間とAIの共同作業</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="lifetime">成果物の寿命</label>
+              <select id="lifetime">
+                <option value="hours">数分から数時間</option>
+                <option value="days">数日</option>
+                <option value="months">数週間から数か月</option>
+                <option value="long">半年以上</option>
+                <option value="audit">長期監査</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="purpose">主な役割</label>
+              <select id="purpose">
+                <option value="decision">確認・比較・意思決定</option>
+                <option value="knowledge">背景・意図・要件の記録</option>
+                <option value="contract">型・制約・API契約</option>
+                <option value="data">構造化データ処理</option>
+                <option value="log">履歴・評価・監査</option>
+                <option value="diagram">図解・処理フロー</option>
+              </select>
+            </div>
+          </div>
+          <div class="panel recommendation" aria-live="polite">
+            <div class="recommendation-top">
+              <div class="metric">
+                <span>正本</span>
+                <strong id="canon">JSON / Markdown</strong>
+              </div>
+              <div class="metric">
+                <span>人間向け表示</span>
+                <strong id="view">HTML</strong>
+              </div>
+              <div class="metric">
+                <span>補助形式</span>
+                <strong id="support">decision.json</strong>
+              </div>
+            </div>
+            <div>
+              <h3>判断理由</h3>
+              <ul class="reason-list" id="reasons"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="formats">
+        <div class="section-head">
+          <h2>形式比較</h2>
+          <p>形式ごとの得意領域を、役割で絞り込めます。評価は本文の比較表を人間が読みやすい単位へ分解したものです。</p>
+        </div>
+        <div class="toolbar" role="toolbar" aria-label="形式フィルター">
+          <button class="filter-button" data-filter="all" aria-pressed="true">すべて</button>
+          <button class="filter-button" data-filter="knowledge" aria-pressed="false">知識</button>
+          <button class="filter-button" data-filter="data" aria-pressed="false">データ</button>
+          <button class="filter-button" data-filter="contract" aria-pressed="false">契約</button>
+          <button class="filter-button" data-filter="view" aria-pressed="false">表示</button>
+          <button class="filter-button" data-filter="log" aria-pressed="false">履歴</button>
+          <button class="filter-button" data-filter="diagram" aria-pressed="false">図解</button>
+          <button class="filter-button" data-filter="analysis" aria-pressed="false">分析</button>
+        </div>
+        <div class="grid format-grid" id="formatGrid"></div>
+      </section>
+
+      <section id="architecture">
+        <div class="section-head">
+          <h2>責任分離アーキテクチャ</h2>
+          <p>AI駆動開発では、知識、意味、契約、表示、フィードバック、記録を分けると再利用と検証がしやすくなります。</p>
+        </div>
+        <div class="flow" aria-label="推奨する責任分離アーキテクチャ">
+          <div class="flow-step">
+            <h3>知識層</h3>
+            <p>背景、目的、判断理由、要件を残す。</p>
+            <small>Markdown / AsciiDoc</small>
+          </div>
+          <div class="flow-step">
+            <h3>意味層</h3>
+            <p>項目、状態、関係、評価結果を機械可読にする。</p>
+            <small>JSON / JSONL</small>
+          </div>
+          <div class="flow-step">
+            <h3>契約層</h3>
+            <p>型、必須項目、許容値、API境界を検証可能にする。</p>
+            <small>JSON Schema / OpenAPI</small>
+          </div>
+          <div class="flow-step">
+            <h3>表示層</h3>
+            <p>人間が短時間で確認し、比較し、操作する。</p>
+            <small>HTML / CSS / SVG / JavaScript</small>
+          </div>
+          <div class="flow-step">
+            <h3>フィードバック層</h3>
+            <p>承認、却下、保留、タグ、優先度を構造化する。</p>
+            <small>decision.json / feedback.md</small>
+          </div>
+          <div class="flow-step">
+            <h3>記録層</h3>
+            <p>実行履歴、判断履歴、監査証跡を追記可能に残す。</p>
+            <small>JSONL / Markdown</small>
+          </div>
+        </div>
+      </section>
+
+      <section id="usecases">
+        <div class="section-head">
+          <h2>用途別の推奨形式</h2>
+          <p>正本、人間向け表示、補助形式を分けて見ると、HTMLをどこで使うべきかが明確になります。</p>
+        </div>
+        <div class="tabs">
+          <div class="toolbar" role="tablist" aria-label="用途カテゴリ">
+            <button class="tab-button" role="tab" aria-selected="true" aria-controls="tab-docs" id="tab-docs-button" data-tab="tab-docs">文書</button>
+            <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-dev" id="tab-dev-button" data-tab="tab-dev">開発</button>
+            <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-data" id="tab-data-button" data-tab="tab-data">データ</button>
+          </div>
+          <div class="tab-panel active" role="tabpanel" id="tab-docs" aria-labelledby="tab-docs-button">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>用途</th><th>正本</th><th>人間向け表示</th><th>補助形式</th></tr></thead>
+                <tbody>
+                  <tr><td>README</td><td>Markdown</td><td>Markdown</td><td>Mermaid</td></tr>
+                  <tr><td>要件定義</td><td>Markdown</td><td>Markdown / HTML</td><td>JSON Schema</td></tr>
+                  <tr><td>ADR</td><td>Markdown</td><td>Markdown</td><td>Mermaid</td></tr>
+                  <tr><td>大規模マニュアル</td><td>AsciiDoc</td><td>HTML / PDF</td><td>Markdown</td></tr>
+                  <tr><td>RAG資料</td><td>Markdown</td><td>必要に応じHTML</td><td>Front Matter</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-panel" role="tabpanel" id="tab-dev" aria-labelledby="tab-dev-button">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>用途</th><th>正本</th><th>人間向け表示</th><th>補助形式</th></tr></thead>
+                <tbody>
+                  <tr><td>AIエージェント指示</td><td>Markdown</td><td>Markdown</td><td>YAML</td></tr>
+                  <tr><td>コードレビュー</td><td>JSON</td><td>HTML</td><td>Markdownコメント</td></tr>
+                  <tr><td>PR説明</td><td>Markdown / JSON</td><td>HTML</td><td>Mermaid</td></tr>
+                  <tr><td>API仕様</td><td>OpenAPI</td><td>HTMLドキュメント</td><td>Markdown</td></tr>
+                  <tr><td>複雑なワークフロー</td><td>YAML</td><td>HTML可視化</td><td>Mermaid</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-panel" role="tabpanel" id="tab-data" aria-labelledby="tab-data-button">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>用途</th><th>正本</th><th>人間向け表示</th><th>補助形式</th></tr></thead>
+                <tbody>
+                  <tr><td>UIプロトタイプ</td><td>HTML</td><td>HTML</td><td>JSON</td></tr>
+                  <tr><td>比較検討</td><td>JSON / Markdown</td><td>HTML</td><td>decision.json</td></tr>
+                  <tr><td>AI実行ログ</td><td>JSONL</td><td>HTMLダッシュボード</td><td>CSV</td></tr>
+                  <tr><td>評価データ</td><td>JSONL</td><td>HTML / Notebook</td><td>CSV</td></tr>
+                  <tr><td>データ分析</td><td>Notebook / Python</td><td>Notebook / HTML</td><td>JSON / CSV</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="safety">
+        <div class="section-head">
+          <h2>HTML安全条件</h2>
+          <p>AI生成HTMLは実行可能な成果物です。便利さだけでなく、隔離、外部通信、元データの追跡可能性を確認します。</p>
+        </div>
+        <div class="checklist" id="safetyChecklist"></div>
+        <div class="status-line" aria-live="polite">
+          <span class="status-dot" id="safetyDot"></span>
+          <span id="safetyText">未確認の安全条件があります。</span>
+        </div>
+      </section>
+
+      <section id="antipatterns">
+        <div class="section-head">
+          <h2>避けるべきアンチパターン</h2>
+          <p>形式の選定を誤ると、読まれない資料、編集できない正本、もっともらしい誤情報が生まれます。</p>
+        </div>
+        <details open>
+          <summary>すべてをMarkdownで表現する</summary>
+          <p>大量レポートが読まれず、比較や探索に時間がかかり、人間の判断が非構造化テキストに残る。重要なレビューや比較はHTMLビューにし、判断結果はJSONとして取得する。</p>
+        </details>
+        <details>
+          <summary>すべてをHTMLにする</summary>
+          <p>Git差分が荒れ、原本が編集しにくくなり、長期保守が難しくなる。MarkdownまたはJSONを正本にし、HTMLは派生表示として扱う。</p>
+        </details>
+        <details>
+          <summary>HTMLだけを保存する</summary>
+          <p>表示と意味データが密結合し、デザイン変更や監査に弱くなる。元データ、生成条件、判断結果を別に保存する。</p>
+        </details>
+        <details>
+          <summary>美しい表示を正しさの証拠とみなす</summary>
+          <p>誤った分析が信頼できるように見える。出典、仮定、確信度、未確認事項、元データへの導線を画面上に残す。</p>
+        </details>
+      </section>
+
+      <section id="decision-json">
+        <div class="section-head">
+          <h2>判断JSON</h2>
+          <p>上の選択と安全チェックの状態を、AIへ戻せる構造化データとして出力します。</p>
+        </div>
+        <div class="panel">
+          <textarea id="decisionOutput" readonly aria-label="判断JSON"></textarea>
+          <div class="toolbar">
+            <button class="copy-button primary" id="copyJson">JSONをコピー</button>
+            <span id="copyStatus" role="status" aria-live="polite"></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="sources">
+        <div class="section-head">
+          <h2>参考資料</h2>
+        </div>
+        <ol class="source-list">
+          <li><a href="https://zenn.dev/motowo/articles/ai-agent-html-output-design">AI に HTML を直接生成させるのはなぜ効くのか</a></li>
+          <li><a href="https://note.com/hacosco/n/n9174fb83ef48">AI時代のドキュメントは「Markdown」から「HTML」へ？</a></li>
+          <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html">HTML5 Security Cheat Sheet - OWASP</a></li>
+          <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html">Content Security Policy Cheat Sheet - OWASP</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/sandbox">Content-Security-Policy: sandbox directive - MDN</a></li>
+        </ol>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const formats = [
+      { name: "Markdown", role: "knowledge", summary: "背景、意図、要件、ADR、AIへの入力に向く正本形式。", badges: ["AI入力 ◎", "長期正本 ◎", "Git差分 ◎"], scores: { human: "○", machine: "△", interaction: "×" } },
+      { name: "HTML", role: "view", summary: "人間が確認、比較、操作、意思決定するための表示層。", badges: ["人間向け ◎", "UI表現 ◎", "操作 ◎"], scores: { human: "◎", machine: "○", interaction: "◎" } },
+      { name: "JSON", role: "data", summary: "AI出力、レビュー結果、テスト結果、HTML表示の元データに向く。", badges: ["機械処理 ◎", "意味データ", "派生しやすい"], scores: { human: "△", machine: "◎", interaction: "×" } },
+      { name: "JSON Schema", role: "contract", summary: "AI出力や設定、データ交換の型と制約を検証する契約。", badges: ["契約 ◎", "検証 ◎", "揺れ検出"], scores: { human: "×", machine: "◎", interaction: "×" } },
+      { name: "YAML", role: "data", summary: "CI/CD、ワークフロー、エージェント定義などの複雑な設定に向く。", badges: ["設定", "コメント可", "インデント注意"], scores: { human: "△", machine: "◎", interaction: "×" } },
+      { name: "TOML", role: "data", summary: "静的設定、モデル設定、機能フラグなどに向く読みやすい設定形式。", badges: ["静的設定", "Git差分 ◎", "事故少なめ"], scores: { human: "○", machine: "◎", interaction: "×" } },
+      { name: "JSONL", role: "log", summary: "会話履歴、AI実行ログ、評価データ、監査記録の追記に向く。", badges: ["大量データ ◎", "追記しやすい", "履歴"], scores: { human: "×", machine: "◎", interaction: "×" } },
+      { name: "CSV / TSV", role: "data", summary: "平坦な一覧、用語集、評価結果、集計データに向く。", badges: ["表", "大量データ ◎", "Excel連携"], scores: { human: "○", machine: "◎", interaction: "×" } },
+      { name: "AsciiDoc", role: "knowledge", summary: "大規模技術文書、製品マニュアル、書籍、PDFやEPUB出力に向く。", badges: ["大規模文書", "再利用", "長期正本 ◎"], scores: { human: "○", machine: "○", interaction: "×" } },
+      { name: "OpenAPI", role: "contract", summary: "REST API仕様、SDK生成、モック生成、APIテストの契約。", badges: ["API契約", "生成", "検証"], scores: { human: "△", machine: "◎", interaction: "×" } },
+      { name: "Mermaid", role: "diagram", summary: "シーケンス図、構成図、状態遷移図、ER図をテキスト管理する。", badges: ["図解", "Git差分 ◎", "Markdown埋込"], scores: { human: "○", machine: "○", interaction: "△" } },
+      { name: "Jupyter Notebook", role: "analysis", summary: "データ分析、モデル比較、RAG評価、プロンプト評価の実験記録。", badges: ["分析", "結果確認 ◎", "Git差分注意"], scores: { human: "◎", machine: "○", interaction: "○" } }
+    ];
+
+    const safetyItems = [
+      { id: "origin", title: "別Originで表示", detail: "社内システムと同じOriginに置かない。" },
+      { id: "sandbox", title: "iframe sandboxで隔離", detail: "必要な能力だけ許可する。" },
+      { id: "csp", title: "CSPを設定", detail: "外部スクリプト、画像、通信先を制限する。" },
+      { id: "network", title: "外部通信を検査", detail: "fetch、外部画像、iframeを確認する。" },
+      { id: "secret", title: "秘密情報を埋め込まない", detail: "Cookieや機密情報に触れない環境で開く。" },
+      { id: "source", title: "元データと生成条件を保持", detail: "再生成と監査の導線を残す。" }
+    ];
+
+    const recommendationRules = {
+      "human-decision": ["JSON / Markdown", "HTML", "decision.json", ["人間が確認、比較、判断するため、表示層はHTMLが向く。", "判断結果はJSONとして残すと、次のAI処理へ戻しやすい。"]],
+      "ai": ["Markdown", "Markdown", "JSON", ["AIへの入力はトークン効率と見出し構造が重要。", "必要に応じてJSONで意味構造を補う。"]],
+      "rag": ["Markdown + Front Matter", "Markdown", "JSONL", ["RAGでは分割しやすい見出しとメタデータが効く。", "大量の検索・評価ログはJSONLに分ける。"]],
+      "git": ["Markdown / TOML", "Markdown", "Mermaid", ["Gitレビューでは行単位差分と手修正のしやすさが重要。", "図はMermaidにすると差分を追いやすい。"]],
+      "program": ["JSON", "HTML", "JSON Schema", ["CIやプログラムは厳密な構文と検証可能性を求める。", "人間確認が必要なときだけHTMLビューを派生させる。"]],
+      "editor": ["Markdown / AsciiDoc", "Markdown", "Mermaid", ["人間が直接編集する文書は軽量なテキスト形式が扱いやすい。", "大規模文書ではAsciiDocも候補になる。"]],
+      "collab": ["JSON / Markdown", "HTML", "feedback.md", ["人間とAIの共同作業では、操作結果を構造化して戻せることが重要。", "HTMLは一時的な編集・判断UIとして使える。"]]
+    };
+
+    const lifetimeOverrides = {
+      hours: { canon: "単一HTML / JSON", reason: "短命な比較画面や試算ツールは、直接HTMLでもよい。" },
+      days: { canon: "HTML + JSON", reason: "数日使うレビューや会議用画面は、元データをJSONに残す。" },
+      months: { canon: "Markdown / JSON", reason: "数週間以上使う資料は、正本とHTMLビューを分ける。" },
+      long: { canon: "Markdown / AsciiDoc", reason: "長期文書では直接編集、差分管理、再生成可能性を優先する。" },
+      audit: { canon: "JSONL + Schema", reason: "監査用途では追記可能な履歴と検証可能なスキーマを重視する。" }
+    };
+
+    const purposeOverrides = {
+      decision: { view: "HTML", support: "decision.json", reason: "判断結果をAIへ戻すなら、HTMLの操作結果をJSON化する。" },
+      knowledge: { view: "Markdown", support: "Mermaid", reason: "背景や判断理由は長期的に読めるテキスト正本が向く。" },
+      contract: { view: "HTMLドキュメント", support: "JSON Schema / OpenAPI", reason: "制約はスキーマやAPI仕様として検証できる形にする。" },
+      data: { view: "HTMLダッシュボード", support: "CSV", reason: "構造化データは処理形式を正本にし、確認用にHTMLを派生させる。" },
+      log: { view: "HTMLダッシュボード", support: "JSONL", reason: "履歴は追記可能な形式で残し、集計表示を別に作る。" },
+      diagram: { view: "Markdown / HTML", support: "Mermaid / SVG", reason: "意味構造を残す図はMermaid、精密な表示はSVGが向く。" }
+    };
+
+    const state = {
+      activeFilter: "all",
+      selectedReader: "human-decision",
+      selectedLifetime: "hours",
+      selectedPurpose: "decision",
+      checkedSafety: {}
+    };
+
+    function renderFormats() {
+      const grid = document.getElementById("formatGrid");
+      grid.innerHTML = "";
+      formats
+        .filter((format) => state.activeFilter === "all" || format.role === state.activeFilter)
+        .forEach((format) => {
+          const card = document.createElement("article");
+          card.className = "format-card";
+          card.dataset.role = format.role;
+          card.innerHTML = `
+            <h3>${format.name}</h3>
+            <p>${format.summary}</p>
+            <div class="badge-row">${format.badges.map((badge) => `<span class="badge">${badge}</span>`).join("")}</div>
+            <div class="score-grid">
+              <div class="score"><b>${format.scores.human}</b><span>人間向け</span></div>
+              <div class="score"><b>${format.scores.machine}</b><span>機械処理</span></div>
+              <div class="score"><b>${format.scores.interaction}</b><span>操作</span></div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+    }
+
+    function renderSafety() {
+      const list = document.getElementById("safetyChecklist");
+      list.innerHTML = "";
+      safetyItems.forEach((item) => {
+        const label = document.createElement("label");
+        label.className = "check-item";
+        label.innerHTML = `
+          <input type="checkbox" data-safety="${item.id}" ${state.checkedSafety[item.id] ? "checked" : ""}>
+          <span>${item.title}<small>${item.detail}</small></span>
+        `;
+        list.appendChild(label);
+      });
+      updateSafetyStatus();
+    }
+
+    function updateRecommendation() {
+      const base = recommendationRules[state.selectedReader];
+      const lifetime = lifetimeOverrides[state.selectedLifetime];
+      const purpose = purposeOverrides[state.selectedPurpose];
+      const canon = purpose && state.selectedPurpose === "contract" ? "JSON Schema / OpenAPI" : lifetime.canon || base[0];
+      const view = purpose.view || base[1];
+      const support = purpose.support || base[2];
+      const reasons = [...base[3], lifetime.reason, purpose.reason];
+
+      document.getElementById("canon").textContent = canon;
+      document.getElementById("view").textContent = view;
+      document.getElementById("support").textContent = support;
+      document.getElementById("reasons").innerHTML = reasons.map((reason) => `<li>${reason}</li>`).join("");
+      updateDecisionJson();
+    }
+
+    function updateSafetyStatus() {
+      const checked = safetyItems.filter((item) => state.checkedSafety[item.id]).length;
+      const total = safetyItems.length;
+      const ready = checked === total;
+      document.getElementById("safetyDot").classList.toggle("ready", ready);
+      document.getElementById("safetyText").textContent = ready
+        ? `安全条件 ${checked}/${total}: AI生成HTMLを共有する前提がそろっています。`
+        : `安全条件 ${checked}/${total}: 未確認の安全条件があります。`;
+      updateDecisionJson();
+    }
+
+    function updateDecisionJson() {
+      const output = {
+        title: "AI駆動開発における文書・データ・表示形式の比較",
+        generated_view: "reports/001-document-formats-comparison/001-document-formats-comparison.html",
+        source_document: "reports/001-document-formats-comparison/001-document-formats-comparison.md",
+        selection: {
+          reader: document.getElementById("reader")?.selectedOptions[0]?.textContent || "",
+          lifetime: document.getElementById("lifetime")?.selectedOptions[0]?.textContent || "",
+          purpose: document.getElementById("purpose")?.selectedOptions[0]?.textContent || "",
+          canonical_format: document.getElementById("canon")?.textContent || "",
+          human_view: document.getElementById("view")?.textContent || "",
+          support_format: document.getElementById("support")?.textContent || ""
+        },
+        safety_checklist: safetyItems.map((item) => ({
+          id: item.id,
+          title: item.title,
+          checked: Boolean(state.checkedSafety[item.id])
+        })),
+        principle: "知識、意味、契約、表示、フィードバック、記録の責任を分けて設計する"
+      };
+      const target = document.getElementById("decisionOutput");
+      if (target) {
+        target.value = JSON.stringify(output, null, 2);
+      }
+    }
+
+    document.querySelectorAll(".filter-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.activeFilter = button.dataset.filter;
+        document.querySelectorAll(".filter-button").forEach((item) => {
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+        renderFormats();
+      });
+    });
+
+    document.querySelectorAll(".tab-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".tab-button").forEach((item) => item.setAttribute("aria-selected", "false"));
+        document.querySelectorAll(".tab-panel").forEach((item) => item.classList.remove("active"));
+        button.setAttribute("aria-selected", "true");
+        document.getElementById(button.dataset.tab).classList.add("active");
+      });
+    });
+
+    ["reader", "lifetime", "purpose"].forEach((id) => {
+      document.getElementById(id).addEventListener("change", (event) => {
+        if (id === "reader") state.selectedReader = event.target.value;
+        if (id === "lifetime") state.selectedLifetime = event.target.value;
+        if (id === "purpose") state.selectedPurpose = event.target.value;
+        updateRecommendation();
+      });
+    });
+
+    document.getElementById("safetyChecklist").addEventListener("change", (event) => {
+      const id = event.target.dataset.safety;
+      if (!id) return;
+      state.checkedSafety[id] = event.target.checked;
+      updateSafetyStatus();
+    });
+
+    document.getElementById("copyJson").addEventListener("click", async () => {
+      const text = document.getElementById("decisionOutput").value;
+      const status = document.getElementById("copyStatus");
+      try {
+        await navigator.clipboard.writeText(text);
+        status.textContent = "コピーしました。";
+      } catch (error) {
+        document.getElementById("decisionOutput").select();
+        status.textContent = "テキストを選択しました。";
+      }
+    });
+
+    renderFormats();
+    renderSafety();
+    updateRecommendation();
+  </script>
+</body>
+</html>

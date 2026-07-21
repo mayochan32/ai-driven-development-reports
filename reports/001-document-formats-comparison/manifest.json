@@ -1,0 +1,16 @@
+{
+  "id": "001-document-formats-comparison",
+  "title": "AI駆動開発における文書・データ・表示形式の比較",
+  "status": "draft",
+  "date": "2026-07-22",
+  "tags": [
+    "ai-driven-development",
+    "documentation",
+    "markdown",
+    "html",
+    "structured-data"
+  ],
+  "summary": "AI駆動開発で扱うMarkdown、HTML、JSON、JSON Schema、YAML、TOML、JSONLなどの形式を、次の読者、成果物の寿命、正本性、人間の判断支援という観点から比較する。",
+  "markdown": "001-document-formats-comparison.md",
+  "html": "001-document-formats-comparison.html"
+}
