@@ -1,0 +1,25 @@
+version: "1.0"
+base_rubric:
+  reference: "評価基準v2.0（9項目、各0〜3点、最大27点）"
+  rule: "図種固有項目は基礎評価へ加算せず、別枠で0〜3点評価する"
+sequence_diagram:
+  maximum_additional_score: 15
+  criteria:
+    lifeline_order: "関係の近い参加者が隣接し、往復メッセージが不要に長くない"
+    temporal_direction: "時間が上から下へ一貫し、前後関係を誤読しない"
+    message_distinction: "同期、非同期、戻り、生成、破棄を線種とラベルで識別できる"
+    fragment_boundaries: "alt、opt、loop、parの範囲と条件が明確で、入れ子を追える"
+    activation_readability: "活性区間とメッセージが重ならず、処理主体を判別できる"
+class_diagram:
+  maximum_additional_score: 15
+  criteria:
+    hierarchy_direction: "継承・実装の上位下位方向が一貫している"
+    relation_distinction: "継承、集約、コンポジション、依存、関連を識別できる"
+    multiplicity_and_roles: "多重度、関連名、ロール名が接続先と対応している"
+    package_grouping: "責務や境界に沿ってパッケージ化され、循環や越境が見える"
+    member_density: "属性・操作の量が目的に適し、クラス名と関係線を圧迫しない"
+mandatory_violations:
+  - "シーケンス図で時間順が逆に見える"
+  - "parを直列に、またはaltを並行に見せる"
+  - "クラス図の継承矢印の向きが意味と逆に見える"
+  - "多重度や関連名が別の線に属するように見える"

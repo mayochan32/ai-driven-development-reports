@@ -1,0 +1,113 @@
+digraph OrderFlow {
+  graph [
+    rankdir=TB,
+    compound=true,
+    newrank=true,
+    splines=ortho,
+    nodesep=0.38,
+    ranksep=0.58,
+    pad=0.18,
+    bgcolor="white",
+    fontname="Hiragino Sans"
+  ];
+  node [shape=box, style="rounded,filled", fillcolor="#e8f3ff", color="#2563eb", fontcolor="#172033", fontname="Hiragino Sans", fontsize=12, margin="0.14,0.09"];
+  edge [color="#52606d", fontcolor="#364152", fontname="Hiragino Sans", fontsize=10, arrowsize=0.72];
+
+  subgraph cluster_intake {
+    label="1. 注文受付"; color="#a8c7fa"; style="rounded";
+    start [label="ユーザーが注文"];
+    api [label="注文APIが注文を受け付ける"];
+    start -> api;
+  }
+
+  subgraph cluster_preconditions {
+    label="2. 注文前提条件（並行処理）"; color="#a8c7fa"; style="rounded";
+    fork [label="並行開始", shape=diamond, fillcolor="#fff7d6", color="#a16207"];
+
+    inventory [label="在庫サービスへ\n引当を依頼"];
+    inventory_result [label="在庫を確保\nできた?", shape=diamond, fillcolor="#fff7d6", color="#a16207"];
+    inventory_ready [label="在庫確保完了"];
+
+    fraud [label="不正検知サービスへ\n審査を依頼"];
+    fraud_result [label="審査結果", shape=diamond, fillcolor="#fff7d6", color="#a16207"];
+    manual [label="担当者が手動審査"];
+    manual_result [label="手動審査結果", shape=diamond, fillcolor="#fff7d6", color="#a16207"];
+    fraud_ok [label="審査通過"];
+    ready [label="AND合流\n在庫確保 + 審査通過", shape=hexagon, fillcolor="#e6f7ed", color="#15803d", penwidth=2];
+
+    { rank=same; inventory; fraud; }
+    { rank=same; inventory_result; fraud_result; }
+    { rank=same; inventory_ready; fraud_ok; }
+    fork -> inventory;
+    fork -> fraud;
+    inventory -> inventory_result;
+    inventory_result -> inventory_ready [label="はい"];
+    fraud -> fraud_result;
+    fraud_result -> fraud_ok [label="承認"];
+    fraud_result -> manual [label="要確認"];
+    manual -> manual_result;
+    manual_result -> fraud_ok [label="承認"];
+    inventory_ready -> ready;
+    fraud_ok -> ready;
+  }
+
+  subgraph cluster_commit {
+    label="3. 決済と注文確定"; color="#a8c7fa"; style="rounded";
+    payment [label="決済サービスへ\n決済を依頼"];
+    payment_result [label="決済成功?", shape=diamond, fillcolor="#fff7d6", color="#a16207"];
+    save [label="注文DBへ確定注文を保存"];
+    save_result [label="注文保存成功?", shape=diamond, fillcolor="#fff7d6", color="#a16207"];
+    respond [label="注文成功をWeb画面へ返す"];
+    payment -> payment_result;
+    payment_result -> save [label="成功"];
+    save -> save_result;
+    save_result -> respond [label="成功"];
+  }
+
+  subgraph cluster_after {
+    label="4. 注文確定後（非同期処理）"; color="#8b7bd8"; style="rounded,dashed";
+    async [label="非同期処理を開始", fillcolor="#f3efff", color="#6d4aff"];
+    ship [label="配送サービスへ\n配送を依頼", fillcolor="#f3efff", color="#6d4aff"];
+    ship_result [label="配送依頼成功?", shape=diamond, fillcolor="#fff7d6", color="#a16207"];
+    ship_done [label="配送手配完了", fillcolor="#f3efff", color="#6d4aff"];
+    ops [label="運用担当者へ\n対応を依頼", fillcolor="#f3efff", color="#6d4aff"];
+    notify [label="通知サービスへ\n確認通知を依頼", fillcolor="#f3efff", color="#6d4aff"];
+    notify_result [label="通知成功?", shape=diamond, fillcolor="#fff7d6", color="#a16207"];
+    notify_done [label="通知完了", fillcolor="#f3efff", color="#6d4aff"];
+    notify_queue [label="通知キューへ登録", fillcolor="#f3efff", color="#6d4aff"];
+
+    { rank=same; ship; notify; }
+    { rank=same; ship_result; notify_result; }
+    { rank=same; ship_done; notify_done; }
+    async -> ship;
+    async -> notify;
+    ship -> ship_result;
+    ship_result -> ship_done [label="成功"];
+    ship_result -> ops [label="失敗"];
+    notify -> notify_result;
+    notify_result -> notify_done [label="成功"];
+    notify_result -> notify_queue [label="失敗"];
+    notify_queue -> notify [label="再試行", style=dashed, constraint=false];
+  }
+
+  subgraph cluster_compensation {
+    label="失敗・補償処理"; color="#d55c50"; style="rounded,dashed";
+    cancel [label="注文を中止", fillcolor="#fdecec", color="#b42318"];
+    refund [label="決済を取消または返金", fillcolor="#fdecec", color="#b42318"];
+    release [label="引当済み在庫を解放", fillcolor="#fdecec", color="#b42318"];
+    order_fail [label="注文失敗をWeb画面へ返す", fillcolor="#fdecec", color="#b42318"];
+    { rank=same; cancel; refund; }
+    cancel -> release [label="必要な場合だけ", style=dashed];
+    refund -> release [style=dashed];
+    release -> order_fail;
+  }
+
+  api -> fork;
+  ready -> payment;
+  save_result -> async [label="注文確定後", style=dashed];
+  inventory_result -> order_fail [label="いいえ", color="#b42318"];
+  fraud_result -> cancel [label="拒否", color="#b42318"];
+  manual_result -> cancel [label="拒否", color="#b42318"];
+  payment_result -> release [label="失敗", color="#b42318"];
+  save_result -> refund [label="失敗", color="#b42318"];
+}

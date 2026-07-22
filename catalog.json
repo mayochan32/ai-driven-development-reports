@@ -17,6 +17,15 @@
       "markdown": "reports/002-sdd-framework-comparison/002-sdd-framework-comparison.md",
       "html": "reports/002-sdd-framework-comparison/002-sdd-framework-comparison.html",
       "manifest": "reports/002-sdd-framework-comparison/manifest.json"
+    },
+    {
+      "id": "003-layout-aware-diagram-as-code",
+      "title": "AI駆動開発における見た目まで考慮した図の記述方針",
+      "status": "draft",
+      "date": "2026-07-23",
+      "markdown": "reports/003-layout-aware-diagram-as-code/003-layout-aware-diagram-as-code.md",
+      "html": "reports/003-layout-aware-diagram-as-code/003-layout-aware-diagram-as-code.html",
+      "manifest": "reports/003-layout-aware-diagram-as-code/manifest.json"
     }
   ]
 }

@@ -1,0 +1,53 @@
+<div class="callout good">
+        <strong>ELKとは:</strong> Eclipse Layout Kernelの略。ノードや線の位置・寸法を計算する自動レイアウト基盤で、ELK自体が図を描画するわけではない。Mermaidは既定のDagreに加えてELKを選択でき、この比較では同じ論理構造を両方でレンダリングした。
+      </div>
+
+      <div class="viewer-tools">
+        <div class="segmented" role="tablist" aria-label="形式別の画像と記述テキスト">
+          <button type="button" role="tab" aria-selected="true" data-compare-target="mermaid-standard-format">Mermaid標準</button>
+          <button type="button" role="tab" aria-selected="false" data-compare-target="mermaid-elk-format">Mermaid + ELK</button>
+          <button type="button" role="tab" aria-selected="false" data-compare-target="graphviz-format">Graphviz DOT</button>
+          <button type="button" role="tab" aria-selected="false" data-compare-target="d2-format">D2 + Dagre</button>
+          <button type="button" role="tab" aria-selected="false" data-compare-target="plantuml-format">PlantUML</button>
+        </div>
+      </div>
+
+      <figure class="compare-panel" id="mermaid-standard-format">
+        <div class="format-pair">
+          <div class="render-pane"><p class="pane-title">レンダリング結果</p><div class="diagram-scroll fit"><img src="__MERMAID_STANDARD_DATA__" alt="Mermaid標準レイアウトでレンダリングしたEC注文処理図"></div></div>
+          <div class="source-pane"><p class="pane-title">記述テキスト: Mermaid標準</p><div class="source-scroll"><pre><code>__MERMAID_STANDARD_SOURCE_HTML__</code></pre></div></div>
+        </div>
+        <figcaption>Mermaid標準（Dagre）: レイアウト指定なし。極端な横長になり、15/27。</figcaption>
+      </figure>
+
+      <figure class="compare-panel" id="mermaid-elk-format" hidden>
+        <div class="format-pair">
+          <div class="render-pane"><p class="pane-title">レンダリング結果</p><div class="diagram-scroll fit"><img src="__MERMAID_FORMAT_DATA__" alt="MermaidとELKでレンダリングしたEC注文処理図"></div></div>
+          <div class="source-pane"><p class="pane-title">記述テキスト: Mermaid</p><div class="source-scroll"><pre><code>__MERMAID_SOURCE_HTML__</code></pre></div></div>
+        </div>
+        <figcaption>Mermaid + ELK: 領域とAND合流を明示した改善版。25/27。</figcaption>
+      </figure>
+
+      <figure class="compare-panel" id="graphviz-format" hidden>
+        <div class="format-pair">
+          <div class="render-pane"><p class="pane-title">レンダリング結果</p><div class="diagram-scroll fit"><img src="__GRAPHVIZ_FORMAT_DATA__" alt="Graphviz DOTでレンダリングしたEC注文処理図"></div></div>
+          <div class="source-pane"><p class="pane-title">記述テキスト: DOT</p><div class="source-scroll"><pre><code>__GRAPHVIZ_SOURCE_HTML__</code></pre></div></div>
+        </div>
+        <figcaption>Graphviz DOT: rankとclusterで対称性を制御しやすいが、補償領域への長い線が残った。21/27。</figcaption>
+      </figure>
+
+      <figure class="compare-panel" id="d2-format" hidden>
+        <div class="format-pair">
+          <div class="render-pane"><p class="pane-title">レンダリング結果</p><div class="diagram-scroll fit"><img src="__D2_FORMAT_DATA__" alt="D2とDagreでレンダリングしたEC注文処理図"></div></div>
+          <div class="source-pane"><p class="pane-title">記述テキスト: D2</p><div class="source-scroll"><pre><code>__D2_SOURCE_HTML__</code></pre></div></div>
+        </div>
+        <figcaption>D2 + Dagre: ソースの領域記述は簡潔だが、曲線交差と大きな空白が残った。16/27。</figcaption>
+      </figure>
+
+      <figure class="compare-panel" id="plantuml-format" hidden>
+        <div class="format-pair">
+          <div class="render-pane"><p class="pane-title">レンダリング結果</p><div class="diagram-scroll fit"><img src="__PLANTUML_FORMAT_DATA__" alt="PlantUMLでレンダリングしたEC注文処理図"></div></div>
+          <div class="source-pane"><p class="pane-title">記述テキスト: PlantUML</p><div class="source-scroll"><pre><code>__PLANTUML_SOURCE_HTML__</code></pre></div></div>
+        </div>
+        <figcaption>PlantUML: 隠しリンクで対称配置を補助できたが、判断形状と外周線に課題が残った。18/27。</figcaption>
+      </figure>

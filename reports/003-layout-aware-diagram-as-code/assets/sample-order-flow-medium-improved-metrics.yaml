@@ -1,0 +1,19 @@
+source_svg: sample-order-flow-medium-improved.svg
+source_png: sample-order-flow-medium-improved.png
+image_dimensions:
+  width: 1312
+  height: 2619
+  aspect_ratio: 0.5
+whitespace:
+  percentage: 57.8
+  ink_percentage: 42.2
+  threshold: RGBのいずれかが245未満の画素をインクとして計数
+typography:
+  detected_font_size_count: 4
+  minimum_declared_size: 12
+  unit: SVG宣言値（pxまたは単位省略。ptは換算せず）
+edges:
+  detected_path_count: 35
+  crossing_estimate: 1
+  method: SVGのエッジ経路を約12px間隔で標本化した線分交差の近似。共有端点と接触は除外
+  limitation: SVG transform、線の重なり、ノード内通過は完全には評価しない

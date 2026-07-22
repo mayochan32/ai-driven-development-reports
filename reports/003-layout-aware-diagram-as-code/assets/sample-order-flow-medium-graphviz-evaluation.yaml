@@ -1,0 +1,31 @@
+candidate_id: graphviz-dot
+diagram: sample-order-flow-medium-graphviz.png
+source: sample-order-flow-medium-graphviz.dot
+evaluation_target: rendered_image
+rubric_version: "2.0"
+evaluator: author_visual_review
+mandatory_violations: []
+scoring_rule:
+  minimum_per_item: 0
+  maximum_per_item: 3
+  maximum_total: 27
+  mandatory_violation_rule: 必須条件に1件でも違反した場合は、合計点にかかわらず再構成が必要
+scores:
+  flow_direction: 3
+  sequence_clarity: 3
+  branch_clarity: 2
+  element_placement: 2
+  edge_crossings: 1
+  label_readability: 2
+  visual_hierarchy: 3
+  information_density: 2
+  symmetry: 3
+total_score:
+  earned: 21
+  maximum: 27
+  percentage: 77.8
+judgement: 軽微な改善
+observations:
+  - rankとclusterにより並行枝と非同期枝の対応を明示できた
+  - 失敗・補償領域への長い線が右側を縦断し、ラベルと接続元を追いにくい
+  - splines=orthoではエッジラベル配置に制約があり、警告が発生した

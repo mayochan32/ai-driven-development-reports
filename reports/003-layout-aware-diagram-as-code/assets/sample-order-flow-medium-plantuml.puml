@@ -1,0 +1,120 @@
+@startuml
+top to bottom direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam defaultFontName "Hiragino Sans"
+skinparam defaultFontSize 12
+skinparam ArrowColor #52606D
+skinparam ArrowFontColor #364152
+skinparam ArrowFontSize 10
+skinparam packageStyle rectangle
+skinparam packageBorderColor #A8C7FA
+skinparam packageBackgroundColor white
+skinparam rectangleBorderColor #2563EB
+skinparam rectangleBackgroundColor #E8F3FF
+skinparam rectangleFontColor #172033
+skinparam diamondBorderColor #A16207
+skinparam diamondBackgroundColor #FFF7D6
+skinparam diamondFontColor #3F2D0A
+
+package "1. 注文受付" as INTAKE {
+  rectangle "ユーザーが注文" as START
+  rectangle "注文APIが注文を受け付ける" as API
+  START --> API
+}
+
+package "2. 注文前提条件（並行処理）" as PRE {
+  rectangle "並行開始" as FORK #FFF7D6
+
+  rectangle "在庫サービスへ\n引当を依頼" as INVENTORY
+  rectangle "在庫を確保\nできた?" as INVENTORY_RESULT #FFF7D6
+  rectangle "在庫確保完了" as INVENTORY_READY
+
+  rectangle "不正検知サービスへ\n審査を依頼" as FRAUD
+  rectangle "審査結果" as FRAUD_RESULT #FFF7D6
+  rectangle "担当者が手動審査" as MANUAL
+  rectangle "手動審査結果" as MANUAL_RESULT #FFF7D6
+  rectangle "審査通過" as FRAUD_OK
+
+  rectangle "AND合流\n在庫確保 + 審査通過" as READY #E6F7ED
+
+  FORK --> INVENTORY
+  FORK --> FRAUD
+  INVENTORY --> INVENTORY_RESULT
+  INVENTORY_RESULT --> INVENTORY_READY : はい
+  FRAUD --> FRAUD_RESULT
+  FRAUD_RESULT --> FRAUD_OK : 承認
+  FRAUD_RESULT --> MANUAL : 要確認
+  MANUAL --> MANUAL_RESULT
+  MANUAL_RESULT --> FRAUD_OK : 承認
+  INVENTORY_READY --> READY
+  FRAUD_OK --> READY
+
+  INVENTORY -[hidden]right-> FRAUD
+  INVENTORY_RESULT -[hidden]right-> FRAUD_RESULT
+  INVENTORY_READY -[hidden]right-> FRAUD_OK
+}
+
+package "3. 決済と注文確定" as COMMIT {
+  rectangle "決済サービスへ\n決済を依頼" as PAYMENT
+  rectangle "決済成功?" as PAYMENT_RESULT #FFF7D6
+  rectangle "注文DBへ確定注文を保存" as SAVE
+  rectangle "注文保存成功?" as SAVE_RESULT #FFF7D6
+  rectangle "注文成功をWeb画面へ返す" as RESPOND
+
+  PAYMENT --> PAYMENT_RESULT
+  PAYMENT_RESULT --> SAVE : 成功
+  SAVE --> SAVE_RESULT
+  SAVE_RESULT --> RESPOND : 成功
+}
+
+package "4. 注文確定後（非同期処理）" as AFTER #FFFFFF {
+  rectangle "非同期処理を開始" as ASYNC #F3EFFF
+  rectangle "配送サービスへ\n配送を依頼" as SHIP #F3EFFF
+  rectangle "配送依頼成功?" as SHIP_RESULT #FFF7D6
+  rectangle "配送手配完了" as SHIP_DONE #F3EFFF
+  rectangle "運用担当者へ\n対応を依頼" as OPS #F3EFFF
+  rectangle "通知サービスへ\n確認通知を依頼" as NOTIFY #F3EFFF
+  rectangle "通知成功?" as NOTIFY_RESULT #FFF7D6
+  rectangle "通知完了" as NOTIFY_DONE #F3EFFF
+  rectangle "通知キューへ登録" as NOTIFY_QUEUE #F3EFFF
+
+  ASYNC --> SHIP
+  ASYNC --> NOTIFY
+  SHIP --> SHIP_RESULT
+  SHIP_RESULT --> SHIP_DONE : 成功
+  SHIP_RESULT --> OPS : 失敗
+  NOTIFY --> NOTIFY_RESULT
+  NOTIFY_RESULT --> NOTIFY_DONE : 成功
+  NOTIFY_RESULT --> NOTIFY_QUEUE : 失敗
+  NOTIFY_QUEUE ..> NOTIFY : 再試行
+
+  SHIP -[hidden]right-> NOTIFY
+  SHIP_RESULT -[hidden]right-> NOTIFY_RESULT
+  SHIP_DONE -[hidden]right-> NOTIFY_DONE
+}
+
+package "失敗・補償処理" as COMP #FFFFFF {
+  rectangle "注文を中止" as CANCEL #FDECEC
+  rectangle "決済を取消または返金" as REFUND #FDECEC
+  rectangle "引当済み在庫を解放" as RELEASE #FDECEC
+  rectangle "注文失敗をWeb画面へ返す" as ORDER_FAIL #FDECEC
+  CANCEL ..> RELEASE : 必要な場合だけ
+  REFUND ..> RELEASE
+  RELEASE --> ORDER_FAIL
+  CANCEL -[hidden]right-> REFUND
+}
+
+API --> FORK
+READY --> PAYMENT
+SAVE_RESULT ..> ASYNC : 注文確定後
+INVENTORY_RESULT -[#B42318]-> ORDER_FAIL : いいえ
+FRAUD_RESULT -[#B42318]-> CANCEL : 拒否
+MANUAL_RESULT -[#B42318]-> CANCEL : 拒否
+PAYMENT_RESULT -[#B42318]-> RELEASE : 失敗
+SAVE_RESULT -[#B42318]-> REFUND : 失敗
+
+COMMIT -[hidden]right-> COMP
+AFTER -[hidden]right-> COMP
+@enduml

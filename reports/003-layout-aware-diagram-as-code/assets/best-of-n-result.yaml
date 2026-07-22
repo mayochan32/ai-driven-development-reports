@@ -1,0 +1,33 @@
+selection_rule: 必須違反が少ない候補を優先し、同数なら得点率が高い候補を選ぶ
+selected: sample-order-flow-medium-improved.png
+candidates:
+  - id: sample-order-flow-medium-improved.png
+    evaluation: reports/003-layout-aware-diagram-as-code/assets/sample-order-flow-medium-improved-evaluation.yaml
+    mandatory_violations: 0
+    score: 25
+    maximum: 27
+    normalized_percentage: 92.6
+  - id: graphviz-dot
+    evaluation: reports/003-layout-aware-diagram-as-code/assets/sample-order-flow-medium-graphviz-evaluation.yaml
+    mandatory_violations: 0
+    score: 21
+    maximum: 27
+    normalized_percentage: 77.8
+  - id: plantuml-generic
+    evaluation: reports/003-layout-aware-diagram-as-code/assets/sample-order-flow-medium-plantuml-evaluation.yaml
+    mandatory_violations: 0
+    score: 18
+    maximum: 27
+    normalized_percentage: 66.7
+  - id: d2-dagre
+    evaluation: reports/003-layout-aware-diagram-as-code/assets/sample-order-flow-medium-d2-evaluation.yaml
+    mandatory_violations: 0
+    score: 16
+    maximum: 27
+    normalized_percentage: 59.3
+  - id: sample-order-flow-medium-mermaid.png
+    evaluation: reports/003-layout-aware-diagram-as-code/assets/sample-order-flow-medium-evaluation.yaml
+    mandatory_violations: 0
+    score: 15
+    maximum: 27
+    normalized_percentage: 55.6

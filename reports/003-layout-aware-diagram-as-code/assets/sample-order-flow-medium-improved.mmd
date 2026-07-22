@@ -1,0 +1,78 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+    subgraph INTAKE["1. 注文受付"]
+        direction LR
+        START["ユーザーが注文"] --> API["注文APIが注文を受け付ける"]
+    end
+
+    subgraph PRECONDITIONS["2. 注文前提条件（並行処理）"]
+        direction LR
+        INVENTORY["在庫サービスへ引当を依頼"] --> INVENTORY_RESULT{"在庫を確保できた?"}
+        INVENTORY_RESULT -->|はい| INVENTORY_READY["在庫確保完了"]
+
+        FRAUD["不正検知サービスへ審査を依頼"] --> FRAUD_RESULT{"審査結果"}
+        FRAUD_RESULT -->|承認| FRAUD_OK["審査通過"]
+        FRAUD_RESULT -->|要確認| MANUAL["担当者が手動審査"]
+        MANUAL --> MANUAL_RESULT{"手動審査結果"}
+        MANUAL_RESULT -->|承認| FRAUD_OK
+
+        INVENTORY_READY --> READY{{"AND合流<br/>在庫確保 + 審査通過"}}
+        FRAUD_OK --> READY
+    end
+
+    subgraph COMMIT["3. 決済と注文確定"]
+        direction LR
+        PAYMENT["決済サービスへ決済を依頼"] --> PAYMENT_RESULT{"決済成功?"}
+        PAYMENT_RESULT -->|成功| SAVE["注文DBへ確定注文を保存"]
+        SAVE --> SAVE_RESULT{"注文保存成功?"}
+        SAVE_RESULT -->|成功| RESPOND["注文成功をWeb画面へ返す"]
+    end
+
+    subgraph AFTER_COMMIT["4. 注文確定後（非同期処理）"]
+        direction LR
+        ASYNC["非同期処理を開始"]
+
+        ASYNC --> SHIP["配送サービスへ配送を依頼"]
+        SHIP --> SHIP_RESULT{"配送依頼成功?"}
+        SHIP_RESULT -->|成功| SHIP_DONE["配送手配完了"]
+        SHIP_RESULT -->|失敗| OPS["運用担当者へ対応を依頼"]
+
+        ASYNC --> NOTIFY["通知サービスへ確認通知を依頼"]
+        NOTIFY --> NOTIFY_RESULT{"通知成功?"}
+        NOTIFY_RESULT -->|成功| NOTIFY_DONE["通知完了"]
+        NOTIFY_RESULT -->|失敗| NOTIFY_QUEUE["通知キューへ登録"]
+        NOTIFY_QUEUE -.->|再試行| NOTIFY
+    end
+
+    subgraph COMPENSATION["失敗・補償処理"]
+        direction LR
+        CANCEL["注文を中止"] -.->|必要な場合だけ| RELEASE["引当済み在庫を解放"]
+        REFUND["決済を取消または返金"] -.-> RELEASE
+        RELEASE --> ORDER_FAIL["注文失敗をWeb画面へ返す"]
+    end
+
+    API --> INVENTORY
+    API --> FRAUD
+    READY --> PAYMENT
+
+    INVENTORY_RESULT -->|いいえ| ORDER_FAIL
+    FRAUD_RESULT -->|拒否| CANCEL
+    MANUAL_RESULT -->|拒否| CANCEL
+    PAYMENT_RESULT -->|失敗| RELEASE
+    SAVE_RESULT -->|失敗| REFUND
+    SAVE_RESULT -.->|注文確定後に非同期実行| ASYNC
+
+    classDef normal fill:#e8f3ff,stroke:#2563eb,color:#172033,stroke-width:1.5px
+    classDef decision fill:#fff7d6,stroke:#a16207,color:#3f2d0a,stroke-width:1.5px
+    classDef join fill:#e6f7ed,stroke:#15803d,color:#163d24,stroke-width:2px
+    classDef failure fill:#fdecec,stroke:#b42318,color:#4a1712,stroke-width:1.5px
+    classDef async fill:#f3efff,stroke:#6d4aff,color:#2c2254,stroke-width:1.5px
+
+    class START,API,INVENTORY,INVENTORY_READY,FRAUD,FRAUD_OK,MANUAL,PAYMENT,SAVE,RESPOND normal
+    class INVENTORY_RESULT,FRAUD_RESULT,MANUAL_RESULT,PAYMENT_RESULT,SAVE_RESULT,SHIP_RESULT,NOTIFY_RESULT decision
+    class READY join
+    class CANCEL,REFUND,RELEASE,ORDER_FAIL failure
+    class ASYNC,SHIP,SHIP_DONE,OPS,NOTIFY,NOTIFY_DONE,NOTIFY_QUEUE async

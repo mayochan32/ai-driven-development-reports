@@ -1,0 +1,28 @@
+subject: sample-order-flow-medium-improved.png
+rubric_version: "2.0"
+method: "同じ画像、ソース、不変条件、プロンプトでCodex CLIを独立に3回実行"
+important_limitation: "人間評価者による校正ではない。反復可能性を見る代理実験であり、人間評価の代替にしない"
+raters:
+  - id: ai-rater-1
+    total_score: 13
+    mandatory_violations: 2
+    scores: { flow_direction: 1, sequence_clarity: 1, branch_clarity: 1, element_placement: 1, edge_crossings: 2, label_readability: 3, visual_hierarchy: 2, information_density: 1, symmetry: 1 }
+  - id: ai-rater-2
+    total_score: 14
+    mandatory_violations: 1
+    scores: { flow_direction: 1, sequence_clarity: 1, branch_clarity: 2, element_placement: 1, edge_crossings: 1, label_readability: 3, visual_hierarchy: 2, information_density: 1, symmetry: 2 }
+  - id: ai-rater-3
+    total_score: 14
+    mandatory_violations: 1
+    scores: { flow_direction: 1, sequence_clarity: 1, branch_clarity: 2, element_placement: 1, edge_crossings: 1, label_readability: 3, visual_hierarchy: 2, information_density: 1, symmetry: 2 }
+summary:
+  total_score_median: 14
+  total_score_minimum: 13
+  total_score_maximum: 14
+  maximum_item_score_spread: 1
+  mandatory_violation_count_range: "1-2"
+  common_finding: "2/3が注文保存判定から非同期開始への線を成功条件不明確な必須違反と判定"
+interpretation:
+  - "独立AI評価3回の得点差は1点で、同一設定内の反復性は高かった"
+  - "著者による25点評価とは11-12点差があり、評価者種別をまたぐ絶対点比較は未校正"
+  - "公開判定にはアンカー画像を用いた人間3名以上の評価が必要"

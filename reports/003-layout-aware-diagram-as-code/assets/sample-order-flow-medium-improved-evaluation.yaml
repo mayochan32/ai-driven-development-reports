@@ -1,0 +1,74 @@
+diagram: sample-order-flow-medium-improved.png
+evaluation_target: rendered_image
+rubric_version: "2.0"
+
+mandatory_violations: []
+
+scoring_rule:
+  minimum_per_item: 0
+  maximum_per_item: 3
+  maximum_total: 27
+  mandatory_violation_rule: 必須条件に1件でも違反した場合は、合計点にかかわらず再構成が必要
+  judgement_ranges:
+    - range: 24-27
+      judgement: 公開可能
+    - range: 20-23
+      judgement: 軽微な改善
+    - range: 14-19
+      judgement: 再構成が必要
+    - range: 0-13
+      judgement: 図の種類や分割方法から再検討
+
+scores:
+  flow_direction: 3
+  sequence_clarity: 3
+  branch_clarity: 3
+  element_placement: 2
+  edge_crossings: 3
+  label_readability: 3
+  visual_hierarchy: 3
+  information_density: 2
+  symmetry: 3
+
+total_score:
+  earned: 25
+  maximum: 27
+  percentage: 92.6
+judgement: 公開可能
+
+comparison:
+  baseline_diagram: sample-order-flow-medium-mermaid.png
+  baseline_score: 15
+  score_change: 10
+
+evidence:
+  flow_direction:
+    - 受付から前提条件、決済と保存、注文確定後処理へ上から下に一貫して進む
+  sequence_clarity:
+    - 工程番号と領域名により、処理順序と注文確定の境界を追跡できる
+  branch_clarity:
+    - 在庫確保と審査通過を明示的なAND合流として表現している
+    - 正常、失敗、再試行の各線にテキストラベルがある
+  element_placement:
+    - 関連処理は領域内にまとまっている
+    - 前提条件から失敗・補償処理へ向かう線は依然として長い
+  edge_crossings:
+    - 領域内の線はほぼ交差せず、補償処理への線も追跡可能である
+  label_readability:
+    - ノードと線のラベルを判読でき、文字の切れや重なりがない
+  visual_hierarchy:
+    - 工程領域、通常処理、判断、AND合流、失敗、非同期処理を形状、色、ラベルで区別している
+  information_density:
+    - 横方向の密集は解消したが、縦長のため全体把握にはスクロールが必要になる
+  symmetry:
+    - 在庫引当と不正審査、配送と通知が対応する枝として対称に配置され、差異を比較しやすい
+
+remaining_risks:
+  - 在庫不足と審査拒否から補償領域へ向かう線が長い
+  - 全体を縮小表示すると、領域内の文字が小さくなる
+  - 注文確定後処理と補償処理が横並びのため、同時に開始する処理と誤認される余地がある
+
+next_revision_candidates:
+  - 前提条件の失敗を領域内の終了点へ一度集約してから補償処理へ接続する
+  - 注文確定後処理と補償処理の開始条件を見出しにも明記する
+  - 紙面掲載時は、全体図と注文確定後処理の詳細図へ分割する

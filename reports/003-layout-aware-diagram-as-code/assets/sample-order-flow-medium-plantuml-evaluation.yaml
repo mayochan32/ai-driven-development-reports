@@ -1,0 +1,31 @@
+candidate_id: plantuml-generic
+diagram: sample-order-flow-medium-plantuml.png
+source: sample-order-flow-medium-plantuml.puml
+evaluation_target: rendered_image
+rubric_version: "2.0"
+evaluator: author_visual_review
+mandatory_violations: []
+scoring_rule:
+  minimum_per_item: 0
+  maximum_per_item: 3
+  maximum_total: 27
+  mandatory_violation_rule: 必須条件に1件でも違反した場合は、合計点にかかわらず再構成が必要
+scores:
+  flow_direction: 2
+  sequence_clarity: 2
+  branch_clarity: 2
+  element_placement: 2
+  edge_crossings: 1
+  label_readability: 2
+  visual_hierarchy: 2
+  information_density: 2
+  symmetry: 3
+total_score:
+  earned: 18
+  maximum: 27
+  percentage: 66.7
+judgement: 再構成が必要
+observations:
+  - hidden linkにより在庫と審査、配送と通知の対応位置を揃えられた
+  - 上部の失敗分岐から補償領域へ伸びる外周線が長く、接続元の確認負荷が高い
+  - 汎用ダイアグラムでは判断ノードも矩形となり、色と疑問符への依存が強くなった

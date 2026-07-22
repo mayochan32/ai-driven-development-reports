@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>図の視覚改善エージェント 利用・組み込みガイド</title>
+  <style>
+    :root {
+      --ink: #172033; --muted: #596579; --line: #d5dbe4; --soft: #f4f6f8;
+      --paper: #fff; --blue: #2057a6; --blue-soft: #edf4ff;
+      --green: #18794e; --green-soft: #eaf7f0; --amber: #8a5500;
+      --amber-soft: #fff5dc; --code: #111827; --code-ink: #edf2f7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif; line-height: 1.7; }
+    a { color: var(--blue); text-underline-offset: 3px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    .topbar { border-bottom: 1px solid var(--line); background: #fff; }
+    .topbar-inner, .header-inner, .layout { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .topbar-inner { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 20px; font-size: 13px; }
+    .product { font-weight: 700; color: var(--ink); text-decoration: none; }
+    .source-link { color: var(--muted); }
+    header { padding: 44px 0 34px; border-bottom: 1px solid var(--line); background: var(--soft); }
+    .eyebrow { margin: 0 0 8px; color: var(--blue); font-size: 13px; font-weight: 700; }
+    h1 { max-width: 850px; margin: 0; font-size: 36px; line-height: 1.3; letter-spacing: 0; }
+    .lead { max-width: 780px; margin: 16px 0 0; color: var(--muted); font-size: 17px; }
+    .principles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin-top: 28px; border: 1px solid var(--line); background: var(--line); }
+    .principle { padding: 16px; background: #fff; }
+    .principle strong { display: block; font-size: 20px; line-height: 1.2; }
+    .principle span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
+    .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 44px; padding-top: 36px; padding-bottom: 72px; }
+    aside { align-self: start; position: sticky; top: 20px; }
+    aside strong { display: block; margin-bottom: 10px; font-size: 12px; color: var(--muted); }
+    aside a { display: block; padding: 7px 10px; border-left: 2px solid var(--line); color: var(--muted); font-size: 13px; text-decoration: none; }
+    aside a:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+    main { min-width: 0; }
+    section { padding: 8px 0 38px; scroll-margin-top: 20px; }
+    section + section { border-top: 1px solid var(--line); padding-top: 38px; }
+    h2 { margin: 0 0 8px; font-size: 25px; line-height: 1.35; letter-spacing: 0; }
+    h3 { margin: 24px 0 8px; font-size: 17px; letter-spacing: 0; }
+    p { margin: 8px 0 14px; }
+    .section-intro { margin-bottom: 22px; color: var(--muted); }
+    .decision { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); }
+    .decision article { padding: 18px; }
+    .decision article + article { border-left: 1px solid var(--line); }
+    .tag { color: var(--blue); font-size: 12px; font-weight: 700; }
+    .decision h3 { margin-top: 5px; }
+    .decision p { color: var(--muted); font-size: 14px; }
+    .tablist { display: flex; overflow-x: auto; border-bottom: 1px solid var(--line); }
+    .tablist button { min-width: 150px; padding: 11px 16px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); font: inherit; font-weight: 700; cursor: pointer; }
+    .tablist button[aria-selected="true"] { color: var(--blue); border-bottom-color: var(--blue); }
+    .tabpanel { padding-top: 18px; }
+    .tabpanel[hidden] { display: none; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--soft); color: var(--muted); font-size: 12px; }
+    pre { max-width: 100%; margin: 12px 0 18px; padding: 16px; overflow: auto; border-radius: 6px; background: var(--code); color: var(--code-ink); font-size: 13px; line-height: 1.6; white-space: pre; }
+    .note, .warning, .success { margin: 18px 0; padding: 14px 16px; border-left: 4px solid var(--blue); background: var(--blue-soft); font-size: 14px; }
+    .warning { border-color: var(--amber); background: var(--amber-soft); }
+    .success { border-color: var(--green); background: var(--green-soft); }
+    .pattern-table td:first-child { width: 18%; font-weight: 700; }
+    .handoff { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .handoff h3 { margin-top: 0; }
+    .checklist { border-top: 1px solid var(--line); }
+    .check-row { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; padding: 13px 4px; border-bottom: 1px solid var(--line); cursor: pointer; }
+    .check-row input { width: 17px; height: 17px; margin-top: 5px; accent-color: var(--green); }
+    .check-row span { display: block; color: var(--muted); font-size: 13px; }
+    .progress { height: 7px; margin: 16px 0 8px; background: var(--line); overflow: hidden; }
+    .progress span { display: block; width: 0; height: 100%; background: var(--green); transition: width .2s ease; }
+    .progress-label { color: var(--muted); font-size: 13px; }
+    footer { padding: 24px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    footer div { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    @media (max-width: 860px) {
+      h1 { font-size: 30px; }
+      .principles { grid-template-columns: 1fr 1fr; }
+      .layout { grid-template-columns: 1fr; gap: 12px; }
+      aside { position: static; display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 20px; }
+      aside strong { grid-column: 1 / -1; }
+      .decision, .handoff { grid-template-columns: 1fr; }
+      .decision article + article { border-left: 0; border-top: 1px solid var(--line); }
+    }
+    @media (max-width: 520px) {
+      .topbar-inner, .header-inner, .layout { width: min(100% - 24px, 1180px); }
+      .topbar-inner { align-items: flex-start; flex-direction: column; gap: 2px; padding: 9px 0; }
+      header { padding: 32px 0 26px; }
+      h1 { font-size: 26px; }
+      .lead { font-size: 15px; }
+      .principles, aside { grid-template-columns: 1fr; }
+      .pattern-table { display: block; overflow-x: auto; }
+    }
+    @media print {
+      .topbar, aside, .tablist, .checklist input { display: none; }
+      .layout { display: block; width: 100%; padding: 20px; }
+      .tabpanel[hidden] { display: block; }
+      pre { white-space: pre-wrap; color: #000; background: #f2f2f2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar"><div class="topbar-inner">
+    <a class="product" href="../SKILL.md">improve-rendered-diagrams</a>
+    <a class="source-link" href="usage-and-integration.md">正本Markdownを開く</a>
+  </div></div>
+
+  <header><div class="header-inner">
+    <p class="eyebrow">USAGE &amp; INTEGRATION GUIDE</p>
+    <h1>図の視覚改善エージェント<br>利用・組み込みガイド</h1>
+    <p class="lead">図のソースだけで判断せず、レンダリング画像を確認して改善する工程を、Codex・Claude Code・GitHub Copilotへ組み込む。</p>
+    <div class="principles" aria-label="共通完了条件">
+      <div class="principle"><strong>4形式</strong><span>Mermaid / DOT / D2 / PlantUML</span></div>
+      <div class="principle"><strong>27点</strong><span>対称性を含む9項目評価</span></div>
+      <div class="principle"><strong>最大3回</strong><span>最良候補を保持して反復</span></div>
+      <div class="principle"><strong>画像必須</strong><span>PNG未確認なら完了扱いにしない</span></div>
+    </div>
+  </div></header>
+
+  <div class="layout">
+    <aside aria-label="目次">
+      <strong>CONTENTS</strong>
+      <a href="#choose">導入方法を選ぶ</a><a href="#platforms">環境別の使い方</a>
+      <a href="#prompts">依頼文の例</a><a href="#patterns">組み込みパターン</a>
+      <a href="#handoff">入出力の受け渡し</a><a href="#check">導入チェック</a>
+      <a href="#operations">運用上の注意</a>
+    </aside>
+
+    <main>
+      <section id="choose">
+        <h2>導入方法を選ぶ</h2>
+        <p class="section-intro">図を扱う頻度と、既存エージェントの責務に合わせて選択する。</p>
+        <div class="decision">
+          <article><span class="tag">LOW FREQUENCY</span><h3>必要なときだけ呼ぶ</h3><p>既存設定は変えず、プロンプトでスキルまたは専門エージェントを指定する。</p></article>
+          <article><span class="tag">STANDARD</span><h3>既存エージェントへ組み込む</h3><p>設計書や文書作成の完了条件として、レンダリングと視覚評価を追加する。</p></article>
+          <article><span class="tag">COMPLEX DIAGRAMS</span><h3>専門エージェントへ委譲する</h3><p>候補生成と評価ログを別コンテキストへ分離し、既存エージェントは意味と採否を管理する。</p></article>
+        </div>
+        <div class="warning"><strong>重要:</strong> 構文検査やレンダリング成功だけでは視覚品質を確認できない。PNGを画像として開けない場合は「視覚評価未完了」とする。</div>
+      </section>
+
+      <section id="platforms">
+        <h2>環境別の使い方</h2>
+        <p class="section-intro">プロジェクトへ共有する場合と、個人環境で再利用する場合で配置先が異なる。</p>
+        <div class="tablist" role="tablist" aria-label="実行環境">
+          <button type="button" role="tab" aria-selected="true" aria-controls="panel-codex" id="tab-codex">Codex</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="panel-claude" id="tab-claude">Claude Code</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="panel-copilot" id="tab-copilot">GitHub Copilot</button>
+        </div>
+        <div class="tabpanel" id="panel-codex" role="tabpanel" aria-labelledby="tab-codex">
+          <table><thead><tr><th>用途</th><th>配置・指定</th></tr></thead><tbody>
+            <tr><td>個人スキル</td><td><code>~/.codex/skills/improve-rendered-diagrams/</code></td></tr>
+            <tr><td>呼び出し</td><td><code>$improve-rendered-diagrams</code> をプロンプトで指定</td></tr>
+            <tr><td>常時ルール</td><td><code>AGENTS.md</code> に図変更時の必須工程を記載</td></tr>
+          </tbody></table>
+          <pre><code>$improve-rendered-diagrams を使って docs/order-flow.mmd を評価・改善してください。
+ノード、分岐条件、並列性、失敗経路は変更しないでください。</code></pre>
+        </div>
+        <div class="tabpanel" id="panel-claude" role="tabpanel" aria-labelledby="tab-claude" hidden>
+          <table><thead><tr><th>用途</th><th>配置・指定</th></tr></thead><tbody>
+            <tr><td>プロジェクト</td><td><code>.claude/skills/improve-rendered-diagrams/</code> と <code>.claude/agents/improve-rendered-diagrams.md</code></td></tr>
+            <tr><td>個人利用</td><td><code>~/.claude/skills/</code> と <code>~/.claude/agents/</code></td></tr>
+            <tr><td>既存エージェント</td><td>frontmatterの <code>skills</code> へスキル名を追加</td></tr>
+          </tbody></table>
+          <pre><code>claude --agent improve-rendered-diagrams</code></pre>
+          <pre><code>skills:
+  - improve-rendered-diagrams</code></pre>
+        </div>
+        <div class="tabpanel" id="panel-copilot" role="tabpanel" aria-labelledby="tab-copilot" hidden>
+          <table><thead><tr><th>用途</th><th>配置・指定</th></tr></thead><tbody>
+            <tr><td>プロジェクト</td><td><code>.github/skills/improve-rendered-diagrams/</code> と <code>.github/agents/improve-rendered-diagrams.agent.md</code></td></tr>
+            <tr><td>CLI個人利用</td><td><code>~/.copilot/skills/</code> と <code>~/.copilot/agents/</code></td></tr>
+            <tr><td>既存エージェント</td><td>本文から共通スキルと完了条件を参照</td></tr>
+          </tbody></table>
+          <pre><code>copilot --agent improve-rendered-diagrams</code></pre>
+        </div>
+        <h3>レンダラーを確認する</h3>
+        <pre><code>node skills/improve-rendered-diagrams/scripts/render-diagram.mjs --check</code></pre>
+        <p>不足するツールは無断でインストールせず、人間の承認を得る。</p>
+      </section>
+
+      <section id="prompts">
+        <h2>依頼文の例</h2>
+        <h3>新しい図を作る</h3>
+        <pre><code>EC注文処理のフローチャートをMermaidで作成してください。
+在庫確保と不正検知は並列処理です。どちらかが失敗したら注文を中止します。
+improve-rendered-diagramsを使い、レンダリング画像を評価してから最良版を提示してください。</code></pre>
+        <h3>既存の図を改善する</h3>
+        <pre><code>docs/order-flow.mmdを改善してください。
+ノード、分岐条件、並列性、失敗経路は変更しないでください。
+画像を実際に確認し、対称性を含む27点評価と改善前後の成果物を残してください。</code></pre>
+        <h3>形式を比較する</h3>
+        <pre><code>この処理をMermaid、Graphviz DOT、D2、PlantUMLでレンダリングし、
+同じ評価基準で比較してください。必須違反がなく、最も誤読しにくい形式を採用してください。</code></pre>
+      </section>
+
+      <section id="patterns">
+        <h2>既存エージェントへの組み込みパターン</h2>
+        <table class="pattern-table"><thead><tr><th>パターン</th><th>向いている状況</th><th>組み込み方</th><th>注意点</th></tr></thead><tbody>
+          <tr><td>A. 明示呼び出し</td><td>図の作業が少ない</td><td>プロンプトでスキル名を指定</td><td>呼び忘れを防げない</td></tr>
+          <tr><td>B. スキル組み込み</td><td>設計書・文書作成エージェント</td><td>図変更時の必須工程として設定</td><td>既存エージェントのコンテキストを使う</td></tr>
+          <tr><td>C. 専門委譲</td><td>大きい図、複数候補の比較</td><td>目的と不変条件を渡して委譲</td><td>最終採否は親エージェントと人間が行う</td></tr>
+          <tr><td>D. 品質ゲート</td><td>公開設計資料を継続的に作る</td><td>PNG、評価YAML、不変条件検査を完了条件化</td><td>24/27を自動承認に使わない</td></tr>
+        </tbody></table>
+        <div class="note"><strong>責務分担:</strong> 既存エージェントは目的・対象読者・論理的不変条件・最終採否を担当する。専門エージェントは図ソース、レンダリング、視覚評価、反復改善を担当する。</div>
+      </section>
+
+      <section id="handoff">
+        <h2>入出力の受け渡し</h2>
+        <p class="section-intro">専門エージェントへは「見た目をよくして」だけでなく、変更してはいけない意味を渡す。</p>
+        <div class="handoff">
+          <div><h3>入力</h3><pre><code>diagram_source: docs/order-flow.mmd
+purpose: 正常系と補償処理のレビュー
+audience: 開発者と運用担当者
+invariants:
+  - 在庫確保と不正検知は並列
+  - 両方成功した場合だけ決済
+  - 決済失敗時は在庫を解放
+target_score: 24
+max_revisions: 3</code></pre></div>
+          <div><h3>出力</h3><pre><code>best_source: candidate-02.mmd
+best_png: candidate-02.png
+best_svg: candidate-02.svg
+evaluation: candidate-02-evaluation.yaml
+score: 25
+mandatory_violations: []
+invariant_check: passed
+stop_reason: target_reached
+remaining_risks: []</code></pre></div>
+        </div>
+      </section>
+
+      <section id="check">
+        <h2>導入チェック</h2>
+        <p class="section-intro">チェック状態はこのページを閉じるまで保持される。</p>
+        <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+        <div class="progress-label" id="progress-label">0 / 5 完了</div>
+        <div class="checklist">
+          <label class="check-row"><input type="checkbox"><span><strong>エージェントが選択候補に現れる</strong>各環境でエージェントまたはスキルを認識できる。</span></label>
+          <label class="check-row"><input type="checkbox"><span><strong>SVGとPNGを生成できる</strong>小さなサンプル図でレンダラーの動作を確認する。</span></label>
+          <label class="check-row"><input type="checkbox"><span><strong>PNGを画像として確認している</strong>画像パス、寸法、具体的な視覚所見が評価結果に残る。</span></label>
+          <label class="check-row"><input type="checkbox"><span><strong>対称性を評価できる</strong>意図的に非対称な同型処理を含む図で指摘を確認する。</span></label>
+          <label class="check-row"><input type="checkbox"><span><strong>意味変更を拒否できる</strong>ノード削除を伴う見かけ上の改善を重大違反として扱う。</span></label>
+        </div>
+        <div class="success"><strong>完了の証拠:</strong> 「画像を見た」という記述だけでは不十分。生成画像、寸法、視覚所見、評価YAML、不変条件検査を確認する。</div>
+      </section>
+
+      <section id="operations">
+        <h2>運用上の注意</h2>
+        <ul>
+          <li>24/27は人間のレビューへ進む目安であり、自動承認基準ではない。</li>
+          <li>AI評価の点数は揺れるため、根拠と重大違反を優先する。</li>
+          <li>機密設計を外部サービスへ送る場合は、組織のデータ取扱方針に従う。</li>
+          <li>レンダラーとレイアウトエンジンのバージョンを評価結果へ残す。</li>
+          <li>配置制御だけで改善しない場合は、図の分割または別形式を比較する。</li>
+        </ul>
+        <p>詳細な手順と設定例の正本は <a href="usage-and-integration.md">usage-and-integration.md</a> を参照する。</p>
+      </section>
+    </main>
+  </div>
+
+  <footer><div>Improve Rendered Diagrams / Human-readable integration view</div></footer>
+  <script>
+    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+    tabs.forEach((tab) => tab.addEventListener('click', () => {
+      tabs.forEach((item) => item.setAttribute('aria-selected', String(item === tab)));
+      panels.forEach((panel) => { panel.hidden = panel.id !== tab.getAttribute('aria-controls'); });
+    }));
+    const checks = Array.from(document.querySelectorAll('.checklist input'));
+    const bar = document.getElementById('progress-bar');
+    const label = document.getElementById('progress-label');
+    const updateProgress = () => {
+      const done = checks.filter((item) => item.checked).length;
+      bar.style.width = `${(done / checks.length) * 100}%`;
+      label.textContent = `${done} / ${checks.length} 完了`;
+    };
+    checks.forEach((item) => item.addEventListener('change', updateProgress));
+    updateProgress();
+  </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+diagram: sample-order-flow-medium-mermaid.png
+evaluation_target: rendered_image
+rubric_version: "2.0"
+
+mandatory_violations: []
+
+scoring_rule:
+  minimum_per_item: 0
+  maximum_per_item: 3
+  maximum_total: 27
+  mandatory_violation_rule: 必須条件に1件でも違反した場合は、合計点にかかわらず再構成が必要
+  judgement_ranges:
+    - range: 24-27
+      judgement: 公開可能
+    - range: 20-23
+      judgement: 軽微な改善
+    - range: 14-19
+      judgement: 再構成が必要
+    - range: 0-13
+      judgement: 図の種類や分割方法から再検討
+
+scores:
+  flow_direction: 2
+  sequence_clarity: 2
+  branch_clarity: 2
+  element_placement: 1
+  edge_crossings: 2
+  label_readability: 2
+  visual_hierarchy: 1
+  information_density: 2
+  symmetry: 1
+
+total_score:
+  earned: 15
+  maximum: 27
+  percentage: 55.6
+judgement: 再構成が必要
+
+evidence:
+  flow_direction:
+    - 主経路は左から右へ進むが、通知再試行だけが右から左へ戻る
+  sequence_clarity:
+    - 正常系は追跡できるが、注文中止から在庫解放へ向かう長い線が主経路と並走する
+  branch_clarity:
+    - 分岐ラベルはあるが、在庫確保と審査通過の合流がAND条件であることを形状から判断できない
+  element_placement:
+    - 在庫不足の判定と注文失敗の表示が図の両端近くに離れている
+    - 注文中止、在庫解放、注文失敗の関連要素が離れている
+  edge_crossings:
+    - 大きな交差は少ないが、長い迂回線が複数あり視線移動を増やしている
+  label_readability:
+    - 個々のラベルは判読可能だが、全体表示では横幅が広く文字が小さくなる
+  visual_hierarchy:
+    - 正常系、失敗系、補償処理、注文確定後の非同期処理が同じ見た目で表現されている
+  information_density:
+    - 内容量は一枚で理解できる範囲だが、右側の処理に対して中央と上下の余白が大きい
+  symmetry:
+    - 在庫引当と不正審査、配送と通知は対応する処理だが、同じ軸や形で並ばず対応関係を比較しにくい
+
+misreading_risks:
+  - 在庫確保または審査通過の片方だけで決済へ進めるように見える
+  - 不正審査による注文中止が、どの時点でも必ず在庫解放を実行するように見える
+  - 通知失敗が注文全体の失敗や取消につながるように見える
+  - 配送と通知が注文成功応答より前に完了必須であるように見える
+  - 長い失敗経路を主経路の一部として読み違える可能性がある
+
+revision_instructions:
+  - 在庫確認と不正審査を「注文前提条件」のまとまりとして上下に並べ、明示的なAND合流点へ接続する
+  - 注文受付、前提条件、決済と保存、注文確定後処理の4領域に分ける
+  - 正常系を中央の短い経路として固定し、失敗系と補償処理を下側へまとめる
+  - 注文確定後の配送と通知は、注文成功応答から分離した非同期領域として配置する
+  - 補償処理と再試行には線種とテキストラベルを併用し、通常処理と区別する
+  - 在庫不足と注文中止の終点を近づけ、図全体を横断する線を短くする
+  - 通知キューからの再試行ループを通知領域内で閉じる
+  - 在庫引当と不正審査、配送と通知を対称に配置し、対応する処理の欠落や差異を比較しやすくする

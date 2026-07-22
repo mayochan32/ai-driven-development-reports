@@ -1,0 +1,67 @@
+%% 複雑な注文処理を一枚に収めた、レイアウト調整前のMermaidサンプル
+%% 論理関係だけを記述し、サブグラフや配置補助は意図的に使っていない
+flowchart LR
+    START["ユーザーが注文"] --> API["注文APIが注文を受け付ける"]
+
+    API --> INV_A["倉庫Aへ在庫引当を依頼"]
+    INV_A --> INV_A_RESULT{"倉庫Aで引当成功?"}
+    INV_A_RESULT -->|成功| INV_READY["在庫確保完了"]
+    INV_A_RESULT -->|失敗| INV_B["倉庫Bへ在庫引当を依頼"]
+    INV_B --> INV_B_RESULT{"倉庫Bで引当成功?"}
+    INV_B_RESULT -->|成功| INV_READY
+    INV_B_RESULT -->|失敗| NO_STOCK["在庫不足として注文失敗"]
+
+    API --> FRAUD["不正検知サービスへ審査を依頼"]
+    FRAUD --> FRAUD_RESULT{"審査結果"}
+    FRAUD_RESULT -->|自動承認| FRAUD_OK["審査通過"]
+    FRAUD_RESULT -->|要確認| MANUAL["担当者が手動審査"]
+    FRAUD_RESULT -->|拒否| FRAUD_REJECT["注文を拒否"]
+    MANUAL --> MANUAL_RESULT{"手動審査結果"}
+    MANUAL_RESULT -->|承認| FRAUD_OK
+    MANUAL_RESULT -->|拒否| FRAUD_REJECT
+
+    INV_READY --> READY["在庫確保と審査通過を待機"]
+    FRAUD_OK --> READY
+    READY --> AUTH["決済サービスへ認証を依頼"]
+    AUTH --> AUTH_RESULT{"決済認証成功?"}
+    AUTH_RESULT -->|成功| CAPTURE["売上確定を依頼"]
+    AUTH_RESULT -->|失敗| RELEASE["確保済み在庫を解放"]
+    CAPTURE --> CAPTURE_RESULT{"売上確定成功?"}
+    CAPTURE_RESULT -->|成功| SAVE["注文DBへ確定注文を保存"]
+    CAPTURE_RESULT -->|失敗| VOID["決済認証を取消"]
+    VOID --> RELEASE
+
+    SAVE --> SAVE_RESULT{"注文保存成功?"}
+    SAVE_RESULT -->|失敗| REFUND["決済を取消または返金"]
+    REFUND --> RELEASE
+    RELEASE --> ORDER_FAIL["注文失敗をWeb画面へ返す"]
+
+    FRAUD_REJECT --> RESERVED{"在庫引当済み?"}
+    RESERVED -->|はい| RELEASE
+    RESERVED -->|いいえ| ORDER_FAIL
+    NO_STOCK --> ORDER_FAIL
+
+    SAVE_RESULT -->|成功| RESPOND["注文成功をWeb画面へ返す"]
+    SAVE_RESULT -->|成功| SHIP["配送サービスへ配送を依頼"]
+    SAVE_RESULT -->|成功| NOTIFY["通知サービスへ確認通知を依頼"]
+
+    SHIP --> SHIP_RESULT{"配送依頼成功?"}
+    SHIP_RESULT -->|成功| SHIP_DONE["配送手配完了"]
+    SHIP_RESULT -->|失敗| SHIP_RETRY{"再試行回数が上限未満?"}
+    SHIP_RETRY -->|はい| SHIP
+    SHIP_RETRY -->|いいえ| OPS["運用担当者へ対応を依頼"]
+
+    NOTIFY --> NOTIFY_RESULT{"通知成功?"}
+    NOTIFY_RESULT -->|成功| NOTIFY_DONE["通知完了"]
+    NOTIFY_RESULT -->|失敗| NOTIFY_QUEUE["通知キューへ登録"]
+    NOTIFY_QUEUE --> NOTIFY
+
+    INV_A -->|タイムアウト| SYNC_TIMEOUT["外部同期処理の復旧判断"]
+    INV_B -->|タイムアウト| SYNC_TIMEOUT
+    FRAUD -->|タイムアウト| SYNC_TIMEOUT
+    MANUAL -->|期限超過| OPS
+    AUTH -->|タイムアウト| PAYMENT_UNKNOWN["決済結果を照会"]
+    CAPTURE -->|タイムアウト| PAYMENT_UNKNOWN
+    PAYMENT_UNKNOWN -->|失敗確定| RELEASE
+    PAYMENT_UNKNOWN -->|成功確認| SAVE
+    SYNC_TIMEOUT --> OPS

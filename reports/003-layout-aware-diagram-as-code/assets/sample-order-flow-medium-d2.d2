@@ -1,0 +1,95 @@
+direction: down
+
+classes: {
+  normal: { style: { fill: "#e8f3ff"; stroke: "#2563eb"; font-color: "#172033" } }
+  decision: { shape: diamond; style: { fill: "#fff7d6"; stroke: "#a16207"; font-color: "#3f2d0a" } }
+  join: { shape: hexagon; style: { fill: "#e6f7ed"; stroke: "#15803d"; stroke-width: 2 } }
+  failure: { style: { fill: "#fdecec"; stroke: "#b42318"; font-color: "#4a1712" } }
+  async: { style: { fill: "#f3efff"; stroke: "#6d4aff"; font-color: "#2c2254" } }
+}
+
+intake: 1. 注文受付 {
+  direction: right
+  start: ユーザーが注文 { class: normal }
+  api: 注文APIが注文を受け付ける { class: normal }
+  start -> api
+}
+
+pre: 2. 注文前提条件（並行処理） {
+  direction: down
+  fork: 並行開始 { class: decision }
+  inventory: 在庫サービスへ引当を依頼 { class: normal }
+  inventory_result: 在庫を確保できた? { class: decision }
+  inventory_ready: 在庫確保完了 { class: normal }
+  fraud: 不正検知サービスへ審査を依頼 { class: normal }
+  fraud_result: 審査結果 { class: decision }
+  manual: 担当者が手動審査 { class: normal }
+  manual_result: 手動審査結果 { class: decision }
+  fraud_ok: 審査通過 { class: normal }
+  ready: AND合流\n在庫確保 + 審査通過 { class: join }
+
+  fork -> inventory -> inventory_result
+  inventory_result -> inventory_ready: はい
+  fork -> fraud -> fraud_result
+  fraud_result -> fraud_ok: 承認
+  fraud_result -> manual: 要確認
+  manual -> manual_result
+  manual_result -> fraud_ok: 承認
+  inventory_ready -> ready
+  fraud_ok -> ready
+}
+
+commit: 3. 決済と注文確定 {
+  direction: right
+  payment: 決済サービスへ決済を依頼 { class: normal }
+  payment_result: 決済成功? { class: decision }
+  save: 注文DBへ確定注文を保存 { class: normal }
+  save_result: 注文保存成功? { class: decision }
+  respond: 注文成功をWeb画面へ返す { class: normal }
+  payment -> payment_result
+  payment_result -> save: 成功
+  save -> save_result
+  save_result -> respond: 成功
+}
+
+after: 4. 注文確定後（非同期処理） {
+  direction: down
+  async_start: 非同期処理を開始 { class: async }
+  ship: 配送サービスへ配送を依頼 { class: async }
+  ship_result: 配送依頼成功? { class: decision }
+  ship_done: 配送手配完了 { class: async }
+  ops: 運用担当者へ対応を依頼 { class: async }
+  notify: 通知サービスへ確認通知を依頼 { class: async }
+  notify_result: 通知成功? { class: decision }
+  notify_done: 通知完了 { class: async }
+  notify_queue: 通知キューへ登録 { class: async }
+
+  async_start -> ship -> ship_result
+  ship_result -> ship_done: 成功
+  ship_result -> ops: 失敗
+  async_start -> notify -> notify_result
+  notify_result -> notify_done: 成功
+  notify_result -> notify_queue: 失敗
+  notify_queue -> notify: 再試行 { style.stroke-dash: 4 }
+}
+
+comp: 失敗・補償処理 {
+  direction: right
+  style: { stroke: "#b42318"; stroke-dash: 4 }
+  cancel: 注文を中止 { class: failure }
+  refund: 決済を取消または返金 { class: failure }
+  release: 引当済み在庫を解放 { class: failure }
+  order_fail: 注文失敗をWeb画面へ返す { class: failure }
+  cancel -> release: 必要な場合だけ { style.stroke-dash: 4 }
+  refund -> release { style.stroke-dash: 4 }
+  release -> order_fail
+}
+
+intake.api -> pre.fork
+pre.ready -> commit.payment
+commit.save_result -> after.async_start: 注文確定後 { style.stroke-dash: 4 }
+pre.inventory_result -> comp.order_fail: いいえ
+pre.fraud_result -> comp.cancel: 拒否
+pre.manual_result -> comp.cancel: 拒否
+commit.payment_result -> comp.release: 失敗
+commit.save_result -> comp.refund: 失敗

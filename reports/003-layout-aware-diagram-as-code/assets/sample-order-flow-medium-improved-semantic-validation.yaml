@@ -1,0 +1,22 @@
+source: sample-order-flow-medium-improved.mmd
+requirements: sample-order-flow-medium-requirements.md
+evaluator: independent-semantic-agent
+input_excludes_rendered_image: true
+preserved: true
+missing_requirements: []
+contradictions: []
+unsupported_additions: []
+evidence:
+  - 注文APIから在庫引当と不正審査へ分岐しており、注文受付後の並行開始が明示されている。
+  - 在庫確保完了と審査通過がAND合流「READY」に入り、その後だけ決済へ進む。
+  - 在庫不足は決済を経由せず、注文失敗へ直接遷移する。
+  - 不正審査は承認・要確認・拒否に分岐し、要確認後の手動審査も承認・拒否に分岐する。
+  - 自動審査または手動審査の拒否は注文中止へ進み、必要な場合だけ引当済み在庫を解放する。
+  - 決済失敗は在庫解放を経て注文失敗を返す。
+  - 決済成功後に確定注文を注文DBへ保存する。
+  - 注文保存失敗は決済取消または返金、在庫解放、注文失敗の順に進む。
+  - 注文保存成功後にのみ注文成功をWeb画面へ返す。
+  - 注文保存結果から「注文確定後に非同期実行」という条件で非同期処理を開始し、配送依頼と確認通知へ分岐する。
+  - 配送依頼失敗は運用担当者への対応依頼で終了し、注文取消への遷移はない。
+  - 通知失敗は通知キューへ登録され、通知処理へ再試行する。注文取消への遷移はない。
+summary: 提示された図ソースは、EC注文処理の全論理的不変条件を明示的に保持している。矛盾する順序・分岐・追加関係は確認されない。

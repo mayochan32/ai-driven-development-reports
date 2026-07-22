@@ -1,0 +1,44 @@
+%% 中程度の複雑さを持つ、レイアウト調整前のMermaidサンプル
+%% 並行処理、合流、補償処理、非同期再試行を一枚で表現する
+flowchart LR
+    START["ユーザーが注文"] --> API["注文APIが注文を受け付ける"]
+
+    API --> INVENTORY["在庫サービスへ引当を依頼"]
+    INVENTORY --> INVENTORY_RESULT{"在庫を確保できた?"}
+    INVENTORY_RESULT -->|はい| INVENTORY_READY["在庫確保完了"]
+    INVENTORY_RESULT -->|いいえ| ORDER_FAIL["注文失敗をWeb画面へ返す"]
+
+    API --> FRAUD["不正検知サービスへ審査を依頼"]
+    FRAUD --> FRAUD_RESULT{"審査結果"}
+    FRAUD_RESULT -->|承認| FRAUD_OK["審査通過"]
+    FRAUD_RESULT -->|要確認| MANUAL["担当者が手動審査"]
+    FRAUD_RESULT -->|拒否| CANCEL["注文を中止"]
+    MANUAL --> MANUAL_RESULT{"手動審査結果"}
+    MANUAL_RESULT -->|承認| FRAUD_OK
+    MANUAL_RESULT -->|拒否| CANCEL
+
+    INVENTORY_READY --> READY["在庫確保と審査通過を待機"]
+    FRAUD_OK --> READY
+    READY --> PAYMENT["決済サービスへ決済を依頼"]
+    PAYMENT --> PAYMENT_RESULT{"決済成功?"}
+    PAYMENT_RESULT -->|成功| SAVE["注文DBへ確定注文を保存"]
+    PAYMENT_RESULT -->|失敗| RELEASE["引当済みなら在庫を解放"]
+
+    SAVE --> SAVE_RESULT{"注文保存成功?"}
+    SAVE_RESULT -->|失敗| REFUND["決済を取消または返金"]
+    REFUND --> RELEASE
+    CANCEL --> RELEASE
+    RELEASE --> ORDER_FAIL
+
+    SAVE_RESULT -->|成功| RESPOND["注文成功をWeb画面へ返す"]
+    SAVE_RESULT -->|成功| SHIP["配送サービスへ配送を依頼"]
+    SAVE_RESULT -->|成功| NOTIFY["通知サービスへ確認通知を依頼"]
+
+    SHIP --> SHIP_RESULT{"配送依頼成功?"}
+    SHIP_RESULT -->|成功| SHIP_DONE["配送手配完了"]
+    SHIP_RESULT -->|失敗| OPS["運用担当者へ対応を依頼"]
+
+    NOTIFY --> NOTIFY_RESULT{"通知成功?"}
+    NOTIFY_RESULT -->|成功| NOTIFY_DONE["通知完了"]
+    NOTIFY_RESULT -->|失敗| NOTIFY_QUEUE["通知キューへ登録"]
+    NOTIFY_QUEUE --> NOTIFY
