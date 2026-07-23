@@ -12,6 +12,7 @@
     "spec-kit"
   ],
   "summary": "Kiro、cc-sdd、Spec Kitを、公開情報による机上調査、同一要件によるエミュレーション実証、開発担当者視点、選定判断の観点から比較する。",
+  "readme": "README.md",
   "markdown": "002-sdd-framework-comparison.md",
   "html": "002-sdd-framework-comparison.html"
 }

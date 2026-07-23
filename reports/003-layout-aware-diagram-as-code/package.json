@@ -1,0 +1,40 @@
+{
+  "name": "layout-aware-diagram-as-code",
+  "private": true,
+  "scripts": {
+    "verify:report": "node tools/verify-report-html.mjs 003-layout-aware-diagram-as-code.html",
+    "render:sample:graphviz": "dot -Tsvg assets/sample-order-flow-medium-graphviz.dot -o assets/sample-order-flow-medium-graphviz.svg && dot -Tpng assets/sample-order-flow-medium-graphviz.dot -o assets/sample-order-flow-medium-graphviz.png",
+    "render:sample:d2": "npm run render:sample:d2:elk",
+    "render:sample:d2:dagre": "d2 --layout=dagre assets/sample-order-flow-medium-d2.d2 assets/sample-order-flow-medium-d2-dagre.svg && node tools/render-svg-png.mjs assets/sample-order-flow-medium-d2-dagre.svg assets/sample-order-flow-medium-d2-dagre.png 1800",
+    "render:sample:d2:elk": "d2 --layout=elk assets/sample-order-flow-medium-d2.d2 assets/sample-order-flow-medium-d2.svg && node tools/render-svg-png.mjs assets/sample-order-flow-medium-d2.svg assets/sample-order-flow-medium-d2.png 1800",
+    "render:sample:plantuml": "plantuml -checkonly assets/sample-order-flow-medium-plantuml.puml && plantuml -tsvg assets/sample-order-flow-medium-plantuml.puml && plantuml -tpng assets/sample-order-flow-medium-plantuml.puml",
+    "validate:diagram:semantics": "node tools/diagram-semantic-validator.mjs --source assets/sample-order-flow-medium-improved.mmd --requirements assets/sample-order-flow-medium-requirements.md --output assets/sample-order-flow-medium-improved-semantic-validation.yaml",
+    "compare:diagram:candidates": "node tools/diagram-candidate-comparator.mjs assets/sample-order-flow-medium-evaluation.yaml assets/sample-order-flow-medium-improved-evaluation.yaml assets/sample-order-flow-medium-graphviz-evaluation.yaml assets/sample-order-flow-medium-d2-evaluation.yaml assets/sample-order-flow-medium-plantuml-evaluation.yaml --output assets/best-of-n-result.yaml",
+    "agent:diagram:render-only": "node tools/diagram-layout-agent.mjs --input assets/sample-order-flow-medium-mermaid.mmd --requirements assets/sample-order-flow-medium-requirements.md --output-dir assets/agent-runs/render-only --render-only",
+    "agent:diagram:fixture": "node tools/diagram-layout-agent.mjs --input assets/sample-order-flow-medium-mermaid.mmd --requirements assets/sample-order-flow-medium-requirements.md --output-dir assets/agent-runs/fixture --review-fixture tools/fixtures/sample-agent-reviews.yaml",
+    "agent:diagram": "node tools/diagram-layout-agent.mjs --input assets/sample-order-flow-medium-mermaid.mmd --requirements assets/sample-order-flow-medium-requirements.md --output-dir assets/agent-runs/latest",
+    "agent:diagram:codex": "node tools/diagram-layout-agent.mjs --provider codex --input assets/sample-order-flow-medium-mermaid.mmd --requirements assets/sample-order-flow-medium-requirements.md --output-dir assets/agent-runs/codex",
+    "render:sample:bad": "npm run render:sample:bad:svg && npm run render:sample:bad:png",
+    "render:sample:bad:svg": "mmdc -i assets/sample-order-flow-bad.mmd -o assets/sample-order-flow-bad.svg -b transparent",
+    "render:sample:bad:png": "mmdc -i assets/sample-order-flow-bad.mmd -o assets/sample-order-flow-bad.png -b white -w 2400",
+    "render:sample:complex": "npm run render:sample:complex:svg && npm run render:sample:complex:png",
+    "render:sample:complex:svg": "mmdc -i assets/sample-order-flow-complex-mermaid.mmd -o assets/sample-order-flow-complex-mermaid.svg -b transparent",
+    "render:sample:complex:png": "mmdc -i assets/sample-order-flow-complex-mermaid.mmd -o assets/sample-order-flow-complex-mermaid.png -b white -w 3000",
+    "render:sample:medium": "npm run render:sample:medium:svg && npm run render:sample:medium:png",
+    "render:sample:medium:svg": "mmdc -i assets/sample-order-flow-medium-mermaid.mmd -o assets/sample-order-flow-medium-mermaid.svg -b transparent",
+    "render:sample:medium:png": "mmdc -i assets/sample-order-flow-medium-mermaid.mmd -o assets/sample-order-flow-medium-mermaid.png -b white -w 2600",
+    "render:sample:improved": "npm run render:sample:improved:svg && npm run render:sample:improved:png",
+    "render:sample:improved:svg": "mmdc -i assets/sample-order-flow-medium-improved.mmd -o assets/sample-order-flow-medium-improved.svg -b transparent",
+    "render:sample:improved:png": "mmdc -i assets/sample-order-flow-medium-improved.mmd -o assets/sample-order-flow-medium-improved.png -b white -w 2200"
+  },
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.16.0"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.10.1",
+    "openai": "^6.48.0",
+    "sharp": "^0.35.3",
+    "svg-path-properties": "^2.0.2",
+    "yaml": "^2.9.0"
+  }
+}

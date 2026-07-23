@@ -11,6 +11,7 @@
     "ai-agent"
   ],
   "summary": "Diagram as Codeを論理構造の管理だけで終わらせず、レンダリング後の配置、誤読リスク、視覚品質をAIと人間のレビュー対象にする方針を実験から考察する。",
+  "readme": "README.md",
   "markdown": "003-layout-aware-diagram-as-code.md",
   "html": "003-layout-aware-diagram-as-code.html"
 }

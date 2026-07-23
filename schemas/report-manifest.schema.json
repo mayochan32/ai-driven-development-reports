@@ -3,7 +3,7 @@
   "$id": "https://example.local/schemas/report-manifest.schema.json",
   "title": "Report Manifest",
   "type": "object",
-  "required": ["id", "title", "status", "date", "tags", "markdown", "html"],
+  "required": ["id", "title", "status", "date", "tags", "readme", "markdown", "html"],
   "properties": {
     "id": {
       "type": "string",
@@ -28,6 +28,9 @@
       }
     },
     "summary": {
+      "type": "string"
+    },
+    "readme": {
       "type": "string"
     },
     "markdown": {

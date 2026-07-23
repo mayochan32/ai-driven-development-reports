@@ -1,0 +1,4 @@
+interface:
+  display_name: "Improve Rendered Diagrams"
+  short_description: "図をレンダリングし、見た目を評価して意味を保ったまま改善"
+  default_prompt: "Use $improve-rendered-diagrams to render this diagram, inspect its visual result, and iteratively improve it without changing its meaning."

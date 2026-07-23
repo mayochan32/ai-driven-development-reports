@@ -5,6 +5,7 @@
       "title": "AI駆動開発における文書・データ・表示形式の比較",
       "status": "draft",
       "date": "2026-07-22",
+      "readme": "reports/001-document-formats-comparison/README.md",
       "markdown": "reports/001-document-formats-comparison/001-document-formats-comparison.md",
       "html": "reports/001-document-formats-comparison/001-document-formats-comparison.html",
       "manifest": "reports/001-document-formats-comparison/manifest.json"
@@ -14,6 +15,7 @@
       "title": "SDDフレームワーク比較調査: Kiro / cc-sdd / Spec Kit",
       "status": "draft",
       "date": "2026-07-22",
+      "readme": "reports/002-sdd-framework-comparison/README.md",
       "markdown": "reports/002-sdd-framework-comparison/002-sdd-framework-comparison.md",
       "html": "reports/002-sdd-framework-comparison/002-sdd-framework-comparison.html",
       "manifest": "reports/002-sdd-framework-comparison/manifest.json"
@@ -23,6 +25,7 @@
       "title": "AI駆動開発における図の記述方針",
       "status": "draft",
       "date": "2026-07-23",
+      "readme": "reports/003-layout-aware-diagram-as-code/README.md",
       "markdown": "reports/003-layout-aware-diagram-as-code/003-layout-aware-diagram-as-code.md",
       "html": "reports/003-layout-aware-diagram-as-code/003-layout-aware-diagram-as-code.html",
       "manifest": "reports/003-layout-aware-diagram-as-code/manifest.json"
