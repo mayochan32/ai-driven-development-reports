@@ -1,0 +1,69 @@
+---
+config:
+  layout: elk
+---
+
+erDiagram
+    CUSTOMER ||--o{ ORDER : places
+    ADDRESS ||--o{ ORDER : billing
+    ORDER ||--|{ ORDER_ITEM : ""
+    PRODUCT ||--o{ ORDER_ITEM : ""
+    ORDER ||--o| PAYMENT : payment
+    ORDER ||--o| SHIPMENT : shipment
+    ADDRESS ||--o{ SHIPMENT : delivery
+    COUPON o|--o{ ORDER : coupon
+
+    CUSTOMER {
+        uuid customer_id PK
+        string name
+        string email
+    }
+
+    ADDRESS {
+        uuid address_id PK
+        uuid customer_id FK
+        string postal_code
+        string city
+    }
+
+    ORDER {
+        uuid order_id PK
+        uuid customer_id FK
+        uuid billing_address_id FK
+        uuid coupon_id FK
+        string status
+        decimal total
+    }
+
+    ORDER_ITEM {
+        uuid order_id PK, FK
+        uuid product_id PK, FK
+        int quantity
+        decimal unit_price
+    }
+
+    PRODUCT {
+        uuid product_id PK
+        string name
+        decimal price
+    }
+
+    PAYMENT {
+        uuid payment_id PK
+        uuid order_id FK
+        string status
+        decimal amount
+    }
+
+    SHIPMENT {
+        uuid shipment_id PK
+        uuid order_id FK
+        uuid address_id FK
+        string status
+    }
+
+    COUPON {
+        uuid coupon_id PK
+        string code
+        decimal discount_rate
+    }

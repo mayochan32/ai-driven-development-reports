@@ -18,8 +18,37 @@ class_diagram:
     multiplicity_and_roles: "多重度、関連名、ロール名が接続先と対応している"
     package_grouping: "責務や境界に沿ってパッケージ化され、循環や越境が見える"
     member_density: "属性・操作の量が目的に適し、クラス名と関係線を圧迫しない"
+state_diagram:
+  maximum_additional_score: 15
+  criteria:
+    state_progression: "主状態の進行方向が一貫し、正常系の順序を追いやすい"
+    event_and_guard_binding: "イベントとガード条件が対象の遷移線へ明確に結び付く"
+    cycle_readability: "再試行、差し戻し、自己遷移の戻り先を誤読しない"
+    initial_and_final_states: "開始、完了、取消などの入口と終端を識別できる"
+    exception_separation: "正常系、取消、返金、異常復旧が視覚的に区別される"
+component_diagram:
+  maximum_additional_score: 15
+  criteria:
+    boundary_clarity: "システム、ドメイン、外部サービスなどの境界が明確である"
+    dependency_direction: "依存・呼出しの向きが一貫し、循環依存を判別できる"
+    interface_labels: "インターフェース、API、イベント、プロトコルのラベルが接続先と対応する"
+    grouping_hierarchy: "同じ責務の要素がまとまり、境界の入れ子を追える"
+    interaction_mode: "同期呼出しと非同期メッセージングを識別できる"
+er_diagram:
+  maximum_additional_score: 15
+  criteria:
+    cardinality_binding: "カーディナリティが対象の関係線とエンティティへ明確に結び付く"
+    key_readability: "主キー、外部キー、識別子を判別でき、属性密度が過剰でない"
+    relationship_path: "関係線の経路と関係名が交錯せず、接続先を追いやすい"
+    entity_grouping: "集約や業務領域に沿って関連エンティティが近接する"
+    hub_balance: "中心エンティティへ線が過度に集中せず、左右または上下の対応が見える"
 mandatory_violations:
   - "シーケンス図で時間順が逆に見える"
   - "parを直列に、またはaltを並行に見せる"
   - "クラス図の継承矢印の向きが意味と逆に見える"
   - "多重度や関連名が別の線に属するように見える"
+  - "状態遷移のイベントまたはガードが別の遷移線に属するように見える"
+  - "開始状態、終了状態、取消状態の区別を誤る"
+  - "コンポーネントの依存方向またはシステム境界を逆に読める"
+  - "同期呼出しと非同期イベントを同じ関係として誤読する"
+  - "ER図のカーディナリティが別の関係線に属するように見える"

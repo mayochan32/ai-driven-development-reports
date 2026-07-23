@@ -1,0 +1,55 @@
+digraph OrderComponents {
+  graph [rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.75, compound=true, splines=ortho, fontname="Helvetica", label="EC注文プラットフォームのコンポーネント図", labelloc=t];
+  node [shape=component, style="filled", fillcolor="#F7FAF8", color="#45635A", fontname="Helvetica", fontsize=11];
+  edge [color="#52645D", fontname="Helvetica", fontsize=9, arrowsize=0.7];
+
+  subgraph cluster_client {
+    label="Client";
+    color="#9CB7AC";
+    style="rounded";
+    Web [label="Web Frontend"];
+  }
+
+  subgraph cluster_commerce {
+    label="Commerce Platform";
+    color="#9CB7AC";
+    style="rounded";
+    API [label="Order API"];
+    Order [label="Order Service"];
+    DB [shape=cylinder, label="Order DB"];
+    API -> Order;
+    Order -> DB;
+  }
+
+  subgraph cluster_checks {
+    label="Risk & Stock";
+    color="#9CB7AC";
+    style="rounded";
+    Inventory [label="Inventory Service"];
+    Fraud [label="Fraud Service"];
+  }
+
+  subgraph cluster_payment {
+    label="Payment Boundary";
+    color="#9CB7AC";
+    style="rounded";
+    Payment [label="Payment Gateway"];
+  }
+
+  subgraph cluster_async {
+    label="Asynchronous Processing";
+    color="#9CB7AC";
+    style="rounded";
+    Broker [shape=box3d, label="Order Event Broker", fillcolor="#F3EFFF", color="#6D4AFF"];
+    Shipping [label="Shipping Service"];
+    Notify [label="Notification Service"];
+    Broker -> Shipping [style=dashed];
+    Broker -> Notify [style=dashed];
+  }
+
+  Web -> API [label="HTTPS"];
+  Order -> Inventory [label="reserve / release"];
+  Order -> Fraud [label="screen"];
+  Order -> Payment [label="authorize / refund"];
+  Order -> Broker [label="publish events", style=dashed, color="#6D4AFF"];
+}

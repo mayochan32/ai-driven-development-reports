@@ -1,0 +1,35 @@
+flowchart LR
+    subgraph CLIENT["Client"]
+        WEB["Web Frontend"]
+    end
+
+    subgraph COMMERCE["Commerce Platform"]
+        API["Order API"]
+        ORDER["Order Service"]
+        DB[("Order DB")]
+        API --> ORDER
+        ORDER --> DB
+    end
+
+    subgraph CHECKS["Risk & Stock"]
+        INVENTORY["Inventory Service"]
+        FRAUD["Fraud Service"]
+    end
+
+    subgraph PAYMENT_ZONE["Payment Boundary"]
+        PAYMENT["Payment Gateway"]
+    end
+
+    subgraph ASYNC["Asynchronous Processing"]
+        BROKER[["Order Event Broker"]]
+        SHIPPING["Shipping Service"]
+        NOTIFY["Notification Service"]
+        BROKER --> SHIPPING
+        BROKER --> NOTIFY
+    end
+
+    WEB -->|HTTPS| API
+    ORDER -->|reserve / release| INVENTORY
+    ORDER -->|screen| FRAUD
+    ORDER -->|authorize / refund| PAYMENT
+    ORDER -->|publish events| BROKER

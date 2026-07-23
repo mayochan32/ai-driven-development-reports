@@ -1,0 +1,71 @@
+digraph OrderClasses {
+  graph [rankdir=TB, bgcolor="white", pad=0.25, nodesep=0.45, ranksep=0.65, compound=true, fontname="Helvetica", label="EC注文ドメインのクラス図", labelloc=t];
+  node [shape=plain, fontname="Helvetica"];
+  edge [color="#52645D", fontname="Helvetica", fontsize=9, arrowsize=0.75];
+
+  subgraph cluster_order {
+    label="Order Domain";
+    color="#9CB7AC";
+    style="rounded";
+    Order [label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+        <TR><TD BGCOLOR="#DDEBE4"><B>Order</B></TD></TR>
+        <TR><TD ALIGN="LEFT">id: OrderId<BR/>status: OrderStatus<BR/>total: Money</TD></TR>
+        <TR><TD ALIGN="LEFT">addLine()<BR/>applyDiscount()<BR/>confirm()<BR/>cancel()</TD></TR>
+      </TABLE>>];
+    OrderLine [label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+        <TR><TD BGCOLOR="#DDEBE4"><B>OrderLine</B></TD></TR>
+        <TR><TD ALIGN="LEFT">productId: ProductId<BR/>quantity: int<BR/>unitPrice: Money</TD></TR>
+        <TR><TD ALIGN="LEFT">subtotal(): Money</TD></TR>
+      </TABLE>>];
+    DiscountPolicy [label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+        <TR><TD BGCOLOR="#FFF4CC"><I>interface</I><BR/><B>DiscountPolicy</B></TD></TR>
+        <TR><TD ALIGN="LEFT">discountFor(order): Money</TD></TR>
+      </TABLE>>];
+    PercentageDiscount [label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+        <TR><TD BGCOLOR="#F7FAF8"><B>PercentageDiscount</B></TD></TR>
+        <TR><TD ALIGN="LEFT">rate: decimal<BR/>discountFor(order): Money</TD></TR>
+      </TABLE>>];
+    CouponDiscount [label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+        <TR><TD BGCOLOR="#F7FAF8"><B>CouponDiscount</B></TD></TR>
+        <TR><TD ALIGN="LEFT">couponCode: String<BR/>discountFor(order): Money</TD></TR>
+      </TABLE>>];
+    {rank=same; PercentageDiscount; CouponDiscount}
+  }
+
+  subgraph cluster_customer {
+    label="Customer Domain";
+    color="#9CB7AC";
+    style="rounded";
+    Customer [shape=record, style=filled, fillcolor="#F7FAF8", label="{Customer|id: CustomerId\lname: String\l|placeOrder()\l}"];
+  }
+
+  subgraph cluster_catalog {
+    label="Catalog Domain";
+    color="#9CB7AC";
+    style="rounded";
+    Product [shape=record, style=filled, fillcolor="#F7FAF8", label="{Product|id: ProductId\lname: String\lprice: Money\l}"];
+  }
+
+  subgraph cluster_fulfillment {
+    label="Fulfillment";
+    color="#9CB7AC";
+    style="rounded";
+    Payment [shape=record, style=filled, fillcolor="#F7FAF8", label="{Payment|id: PaymentId\lstatus: PaymentStatus\l|authorize()\lrefund()\l}"];
+    Shipment [shape=record, style=filled, fillcolor="#F7FAF8", label="{Shipment|id: ShipmentId\lstatus: ShipmentStatus\l|arrange()\l}"];
+    {rank=same; Payment; Shipment}
+  }
+
+  Customer -> Order [label="places  1 : 0..*"];
+  Order -> OrderLine [label="contains  1 : 1..*", arrowhead=diamond];
+  OrderLine -> Product [label="references  * : 1"];
+  Order -> Payment [label="payment  1 : 0..1", arrowhead=odiamond];
+  Order -> Shipment [label="shipment  1 : 0..1", arrowhead=odiamond];
+  Order -> DiscountPolicy [label="applies", style=dashed];
+  PercentageDiscount -> DiscountPolicy [arrowhead=empty, style=dashed];
+  CouponDiscount -> DiscountPolicy [arrowhead=empty, style=dashed];
+}

@@ -1,0 +1,106 @@
+shape: sequence_diagram
+
+user: ユーザー {
+  shape: person
+}
+web: Web画面
+order: 注文サービス
+inventory: 在庫サービス
+fraud: 不正検知
+payment: 決済サービス
+broker: メッセージ基盤 {
+  shape: queue
+}
+
+user -> web: 注文を確定
+web -> order: 注文作成を依頼
+
+並行処理 par: {
+  order -> inventory: 在庫を引き当て
+  inventory -> order: 引当結果 {
+    style.stroke-dash: 4
+  }
+  order -> fraud: 審査を依頼
+  fraud -> order: 審査結果 {
+    style.stroke-dash: 4
+  }
+}
+
+前提条件OK alt: {
+  order -> payment: 決済を依頼
+
+  決済成功 alt: {
+    payment -> order: 決済ID {
+      style.stroke-dash: 4
+    }
+    order -> order: 確定注文を保存
+
+    注文確定後 par: {
+      order -> broker: 配送依頼を発行 {
+        style.stroke-dash: 4
+      }
+      order -> broker: 確認通知を発行 {
+        style.stroke-dash: 4
+      }
+    }
+
+    order -> web: 注文番号 {
+      style.stroke-dash: 4
+    }
+    web -> user: 注文完了 {
+      style.stroke-dash: 4
+    }
+  }
+
+  決済タイムアウト alt: {
+    payment -> order: 応答なし {
+      style.stroke-dash: 4
+      style.stroke: "#b42318"
+    }
+
+    最大3回まで状態確認 loop: {
+      order -> payment: 決済状態を照会
+      payment -> order: 処理中または確定結果 {
+        style.stroke-dash: 4
+      }
+    }
+
+    成功を確認 alt: {
+      order -> order: 確定注文を保存
+      order -> web: 注文番号 {
+        style.stroke-dash: 4
+      }
+      web -> user: 注文完了 {
+        style.stroke-dash: 4
+      }
+    }
+
+    失敗または不明 alt: {
+      order -> inventory: 引当を解放 {
+        style.stroke: "#b42318"
+      }
+      order -> web: 注文失敗 {
+        style.stroke-dash: 4
+        style.stroke: "#b42318"
+      }
+      web -> user: 再試行を案内 {
+        style.stroke-dash: 4
+        style.stroke: "#b42318"
+      }
+    }
+  }
+}
+
+前提条件NG alt: {
+  order -> inventory: 引当済みなら解放 {
+    style.stroke: "#b42318"
+  }
+  order -> web: 注文拒否 {
+    style.stroke-dash: 4
+    style.stroke: "#b42318"
+  }
+  web -> user: 理由を表示 {
+    style.stroke-dash: 4
+    style.stroke: "#b42318"
+  }
+}

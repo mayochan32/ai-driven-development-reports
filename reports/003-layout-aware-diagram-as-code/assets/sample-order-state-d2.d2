@@ -1,0 +1,47 @@
+direction: down
+
+classes: {
+  state: { shape: oval; style: { fill: "#f7faf8"; stroke: "#45635a"; font-color: "#17201c" } }
+  warning: { shape: oval; style: { fill: "#fff4cc"; stroke: "#a16207"; font-color: "#3f2d0a" } }
+  failure: { shape: oval; style: { fill: "#fdecec"; stroke: "#b42318"; font-color: "#4a1712" } }
+  success: { shape: oval; style: { fill: "#e6f7ed"; stroke: "#15803d"; font-color: "#153d25" } }
+  endpoint: { shape: circle; width: 18; height: 18; style: { fill: "#17201c"; stroke: "#17201c" } }
+}
+
+start: "" { class: endpoint }
+accepted: 受付済み { class: state }
+checking: 確認中 { class: state }
+awaiting: 支払待ち { class: state }
+unknown: 支払不明 { class: warning }
+paid: 支払済み { class: state }
+preparing: 配送準備中 { class: state }
+shipped: 発送済み { class: state }
+completed: 完了 { class: success }
+canceled: 取消済み { class: failure }
+refunding: 返金待ち { class: failure }
+refunded: 返金済み { class: success }
+end_cancel: "" { class: endpoint }
+end_complete: "" { class: endpoint }
+end_refund: "" { class: endpoint }
+
+start -> accepted
+accepted -> checking: 在庫確保と審査を開始
+accepted -> canceled: ユーザー取消
+checking -> awaiting: 在庫OK・審査承認
+checking -> canceled: 在庫不足・審査拒否 / 取消・在庫解放
+awaiting -> awaiting: "再試行 [3回未満]" { style.stroke-dash: 4 }
+awaiting -> unknown: タイムアウト
+awaiting -> paid: 決済成功
+awaiting -> canceled: 失敗 / 在庫解放
+unknown -> unknown: "照会 [処理中]" { style.stroke-dash: 4 }
+unknown -> paid: 成功を確認
+unknown -> canceled: 失敗確認 / 在庫解放
+paid -> preparing: 配送依頼
+paid -> refunding: 取消要求
+preparing -> shipped: 配送業者へ引渡し
+preparing -> refunding: 配送前取消
+shipped -> completed: 配達完了
+refunding -> refunded: 返金成功
+canceled -> end_cancel
+completed -> end_complete
+refunded -> end_refund

@@ -1,0 +1,59 @@
+direction: right
+
+classes: {
+  component: {
+    shape: rectangle
+    style: {
+      fill: "#f7faf8"
+      stroke: "#45635a"
+      border-radius: 3
+      font-color: "#17201c"
+    }
+  }
+  async: {
+    shape: queue
+    style: {
+      fill: "#f3efff"
+      stroke: "#6d4aff"
+      font-color: "#2c2254"
+    }
+  }
+}
+
+client: Client {
+  web: Web Frontend { class: component }
+}
+
+commerce: Commerce Platform {
+  direction: right
+  api: Order API { class: component }
+  order: Order Service { class: component }
+  db: Order DB { shape: cylinder; style.fill: "#f7faf8"; style.stroke: "#45635a" }
+  api -> order
+  order -> db
+}
+
+checks: Risk & Stock {
+  direction: down
+  inventory: Inventory Service { class: component }
+  fraud: Fraud Service { class: component }
+}
+
+payment_zone: Payment Boundary {
+  payment: Payment Gateway { class: component }
+}
+
+async_processing: Asynchronous Processing {
+  direction: down
+  broker: Order Event Broker { class: async }
+  shipping: Shipping Service { class: component }
+  notify: Notification Service { class: component }
+  broker -> shipping { style.stroke-dash: 4 }
+  broker -> notify { style.stroke-dash: 4 }
+}
+
+client.web -> commerce.api: HTTPS
+commerce.order -> checks.inventory: reserve / release
+commerce.order -> checks.fraud: screen
+commerce.order -> payment_zone.payment: authorize / refund
+commerce.order -> async_processing.broker: publish events { style.stroke-dash: 4; style.stroke: "#6d4aff" }

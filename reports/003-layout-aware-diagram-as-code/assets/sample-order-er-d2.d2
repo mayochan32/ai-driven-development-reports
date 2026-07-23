@@ -1,0 +1,129 @@
+direction: right
+
+customer: CUSTOMER {
+  shape: sql_table
+  customer_id: uuid {
+    constraint: primary_key
+  }
+  name: string
+  email: string
+}
+
+address: ADDRESS {
+  shape: sql_table
+  address_id: uuid {
+    constraint: primary_key
+  }
+  customer_id: uuid {
+    constraint: foreign_key
+  }
+  postal_code: string
+  city: string
+}
+
+order: ORDER {
+  shape: sql_table
+  order_id: uuid {
+    constraint: primary_key
+  }
+  customer_id: uuid {
+    constraint: foreign_key
+  }
+  billing_address_id: uuid {
+    constraint: foreign_key
+  }
+  coupon_id: uuid {
+    constraint: foreign_key
+  }
+  status: string
+  total: decimal
+}
+
+order_item: ORDER_ITEM {
+  shape: sql_table
+  order_id: uuid {
+    constraint: [primary_key; foreign_key]
+  }
+  product_id: uuid {
+    constraint: [primary_key; foreign_key]
+  }
+  quantity: int
+  unit_price: decimal
+}
+
+product: PRODUCT {
+  shape: sql_table
+  product_id: uuid {
+    constraint: primary_key
+  }
+  name: string
+  price: decimal
+}
+
+payment: PAYMENT {
+  shape: sql_table
+  payment_id: uuid {
+    constraint: primary_key
+  }
+  order_id: uuid {
+    constraint: foreign_key
+  }
+  status: string
+  amount: decimal
+}
+
+shipment: SHIPMENT {
+  shape: sql_table
+  shipment_id: uuid {
+    constraint: primary_key
+  }
+  order_id: uuid {
+    constraint: foreign_key
+  }
+  address_id: uuid {
+    constraint: foreign_key
+  }
+  status: string
+}
+
+coupon: COUPON {
+  shape: sql_table
+  coupon_id: uuid {
+    constraint: primary_key
+  }
+  code: string
+  discount_rate: decimal
+}
+
+customer.customer_id -> order.customer_id: "places 1 : 0..*" {
+  source-arrowhead.shape: cf-one
+  target-arrowhead.shape: cf-many
+}
+address.address_id -> order.billing_address_id: "billing 1 : 0..*" {
+  source-arrowhead.shape: cf-one
+  target-arrowhead.shape: cf-many
+}
+order.order_id -> order_item.order_id: "1 : 1..*" {
+  source-arrowhead.shape: cf-one
+  target-arrowhead.shape: cf-many
+}
+product.product_id -> order_item.product_id: "1 : 0..*" {
+  source-arrowhead.shape: cf-one
+  target-arrowhead.shape: cf-many
+}
+order.order_id -> payment.order_id: "payment 1 : 0..1" {
+  source-arrowhead.shape: cf-one
+  target-arrowhead.shape: cf-one
+}
+order.order_id -> shipment.order_id: "shipment 1 : 0..1" {
+  source-arrowhead.shape: cf-one
+  target-arrowhead.shape: cf-one
+}
+address.address_id -> shipment.address_id: "delivery 1 : 0..*" {
+  source-arrowhead.shape: cf-one
+  target-arrowhead.shape: cf-many
+}
+coupon.coupon_id -> order.coupon_id: "coupon 0..1 : 0..*" {
+  source-arrowhead.shape: cf-one
+  target-arrowhead.shape: cf-many
+}

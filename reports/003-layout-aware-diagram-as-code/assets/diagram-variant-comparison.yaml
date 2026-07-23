@@ -1,0 +1,56 @@
+version: "1.0"
+rubric:
+  reference: "評価基準v2.0"
+  items: 9
+  maximum_per_item: 3
+  maximum_total: 27
+  evaluator: "著者によるレンダリング画像の視覚評価"
+metrics:
+  source: "各候補のsample-order-*-metrics.yaml"
+  whitespace: "RGBのいずれかが245未満の画素をインクとして数えた残りの比率"
+  crossing_estimate: "SVGエッジを約12px間隔で標本化した線分交差の近似"
+  minimum_font: "SVG内のfont-size宣言値の最小値。ptは換算しない"
+  cautions:
+    - "空白率が低いほど良いとは限らない"
+    - "シーケンス図ではメッセージ線と途中のライフラインとの意図的な交差も交差推定へ含まれる"
+    - "得点と機械値は人間による意味確認を置き換えない"
+d2_rendering:
+  selection_rule: "図種のネイティブ記法を優先し、同一ソースをDagreとELKで実レンダリングして視覚評価が高い方を採用"
+  renderer_version: "D2 0.7.1"
+  selected_layout:
+    sequence: "専用sequence_diagram配置（Dagre/ELK指定で同一結果）"
+    class: "ELK + shape: class + pad 80"
+    state: "ELK"
+    component: "ELK"
+    er: "ELK + shape: sql_table + pad 80"
+scores:
+  sequence:
+    mermaid: { total: 25, maximum: 27 }
+    mermaid_elk: { total: 25, maximum: 27 }
+    plantuml: { total: 26, maximum: 27 }
+    graphviz: { total: 17, maximum: 27 }
+    d2: { total: 23, maximum: 27 }
+  class:
+    mermaid: { total: 22, maximum: 27 }
+    mermaid_elk: { total: 25, maximum: 27 }
+    plantuml: { total: 26, maximum: 27 }
+    graphviz: { total: 24, maximum: 27 }
+    d2: { total: 24, maximum: 27 }
+  state:
+    mermaid: { total: 16, maximum: 27 }
+    mermaid_elk: { total: 23, maximum: 27 }
+    plantuml: { total: 21, maximum: 27 }
+    graphviz: { total: 25, maximum: 27 }
+    d2: { total: 24, maximum: 27 }
+  component:
+    mermaid: { total: 18, maximum: 27 }
+    mermaid_elk: { total: 25, maximum: 27 }
+    plantuml: { total: 25, maximum: 27 }
+    graphviz: { total: 26, maximum: 27 }
+    d2: { total: 26, maximum: 27 }
+  er:
+    mermaid: { total: 19, maximum: 27 }
+    mermaid_elk: { total: 25, maximum: 27 }
+    plantuml: { total: 26, maximum: 27 }
+    graphviz: { total: 26, maximum: 27 }
+    d2: { total: 24, maximum: 27 }

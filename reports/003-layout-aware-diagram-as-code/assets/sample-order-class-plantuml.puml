@@ -1,0 +1,79 @@
+@startuml
+title EC注文ドメインのクラス図
+top to bottom direction
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+package "Order Domain" {
+  class Order {
+    +id: OrderId
+    +status: OrderStatus
+    +total: Money
+    +addLine(product, quantity)
+    +applyDiscount(policy)
+    +confirm()
+    +cancel()
+  }
+
+  class OrderLine {
+    +productId: ProductId
+    +quantity: int
+    +unitPrice: Money
+    +subtotal(): Money
+  }
+
+  interface DiscountPolicy {
+    +discountFor(order): Money
+  }
+
+  class PercentageDiscount {
+    +rate: decimal
+    +discountFor(order): Money
+  }
+
+  class CouponDiscount {
+    +couponCode: String
+    +discountFor(order): Money
+  }
+}
+
+package "Customer Domain" {
+  class Customer {
+    +id: CustomerId
+    +name: String
+    +placeOrder()
+  }
+}
+
+package "Catalog Domain" {
+  class Product {
+    +id: ProductId
+    +name: String
+    +price: Money
+  }
+}
+
+package "Fulfillment" {
+  class Payment {
+    +id: PaymentId
+    +status: PaymentStatus
+    +authorize()
+    +refund()
+  }
+
+  class Shipment {
+    +id: ShipmentId
+    +status: ShipmentStatus
+    +arrange()
+  }
+}
+
+Customer "1" --> "0..*" Order : places
+Order "1" *-- "1..*" OrderLine : contains
+OrderLine "*" --> "1" Product : references
+Order "1" o-- "0..1" Payment : payment
+Order "1" o-- "0..1" Shipment : shipment
+Order --> DiscountPolicy : applies
+DiscountPolicy <|.. PercentageDiscount
+DiscountPolicy <|.. CouponDiscount
+@enduml

@@ -1,0 +1,19 @@
+source_svg: sample-order-state-mermaid.svg
+source_png: sample-order-state-mermaid.png
+image_dimensions:
+  width: 1078
+  height: 982
+  aspect_ratio: 1.1
+whitespace:
+  percentage: 91.9
+  ink_percentage: 8.1
+  threshold: RGBのいずれかが245未満の画素をインクとして計数
+typography:
+  detected_font_size_count: 7
+  minimum_declared_size: 10
+  unit: SVG宣言値（pxまたは単位省略。ptは換算せず）
+edges:
+  detected_path_count: 22
+  crossing_estimate: 3
+  method: SVGのエッジ経路を約12px間隔で標本化した線分交差の近似。共有端点と接触は除外
+  limitation: SVG transform、線の重なり、ノード内通過は完全には評価しない

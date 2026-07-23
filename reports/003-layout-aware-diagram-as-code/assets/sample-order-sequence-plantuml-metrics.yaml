@@ -1,0 +1,19 @@
+source_svg: sample-order-sequence-plantuml.svg
+source_png: sample-order-sequence-plantuml.png
+image_dimensions:
+  width: 880
+  height: 1241
+  aspect_ratio: 0.71
+whitespace:
+  percentage: 89.9
+  ink_percentage: 10.1
+  threshold: RGBのいずれかが245未満の画素をインクとして計数
+typography:
+  detected_font_size_count: 82
+  minimum_declared_size: 11
+  unit: SVG宣言値（pxまたは単位省略。ptは換算せず）
+edges:
+  detected_path_count: 0
+  crossing_estimate: 0
+  method: SVGのエッジ経路を約12px間隔で標本化した線分交差の近似。共有端点と接触は除外
+  limitation: SVG transform、線の重なり、ノード内通過は完全には評価しない

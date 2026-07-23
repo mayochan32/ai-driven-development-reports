@@ -1,4 +1,4 @@
-candidate_id: d2-dagre
+candidate_id: d2-elk
 diagram: sample-order-flow-medium-d2.png
 source: sample-order-flow-medium-d2.d2
 evaluation_target: rendered_image
@@ -11,21 +11,21 @@ scoring_rule:
   maximum_total: 27
   mandatory_violation_rule: 必須条件に1件でも違反した場合は、合計点にかかわらず再構成が必要
 scores:
-  flow_direction: 2
-  sequence_clarity: 2
+  flow_direction: 3
+  sequence_clarity: 3
   branch_clarity: 2
   element_placement: 2
-  edge_crossings: 1
-  label_readability: 2
-  visual_hierarchy: 2
+  edge_crossings: 2
+  label_readability: 3
+  visual_hierarchy: 3
   information_density: 1
-  symmetry: 2
+  symmetry: 3
 total_score:
-  earned: 16
+  earned: 22
   maximum: 27
-  percentage: 59.3
-judgement: 再構成が必要
+  percentage: 81.5
+judgement: 条件付きで採用可能
 observations:
   - コンテナとクラス指定は簡潔で、ソース上の責務分割を読みやすく記述できた
-  - Dagreの自動配置では前提条件内の曲線と外周の失敗線が交差した
-  - 大きな空白と長い外周線により、図全体の情報密度と一覧性が下がった
+  - 同じソースをDagreとELKで比較し、並行処理の対称性と正常系の縦方向が明確なELKを採用した
+  - 交差推定は8件から2件へ減ったが、失敗・補償領域への長い外周線と縦長の比率は残った

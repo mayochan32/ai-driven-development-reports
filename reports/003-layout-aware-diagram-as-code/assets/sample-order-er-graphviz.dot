@@ -1,0 +1,24 @@
+digraph OrderER {
+  graph [layout=dot, rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.75, splines=polyline, fontname="Helvetica", label="EC注文データモデル", labelloc=t];
+  node [shape=record, style="filled", fillcolor="#F7FAF8", color="#45635A", fontname="Helvetica", fontsize=10];
+  edge [dir=none, color="#52645D", fontname="Helvetica", fontsize=9];
+
+  CUSTOMER [label="{CUSTOMER|customer_id: uuid PK\lname: string\lemail: string\l}"];
+  ADDRESS [label="{ADDRESS|address_id: uuid PK\lcustomer_id: uuid FK\lpostal_code: string\lcity: string\l}"];
+  ORDER [fillcolor="#DDEBE4", label="{ORDER|order_id: uuid PK\lcustomer_id: uuid FK\lbilling_address_id: uuid FK\lcoupon_id: uuid FK\lstatus: string\ltotal: decimal\l}"];
+  ORDER_ITEM [label="{ORDER_ITEM|order_id: uuid PK, FK\lproduct_id: uuid PK, FK\lquantity: int\lunit_price: decimal\l}"];
+  PRODUCT [label="{PRODUCT|product_id: uuid PK\lname: string\lprice: decimal\l}"];
+  PAYMENT [label="{PAYMENT|payment_id: uuid PK\lorder_id: uuid FK\lstatus: string\lamount: decimal\l}"];
+  SHIPMENT [label="{SHIPMENT|shipment_id: uuid PK\lorder_id: uuid FK\laddress_id: uuid FK\lstatus: string\l}"];
+  COUPON [label="{COUPON|coupon_id: uuid PK\lcode: string\ldiscount_rate: decimal\l}"];
+
+  CUSTOMER -> ORDER [label="places", taillabel="1", headlabel="0..*", labeldistance=2.0];
+  ADDRESS -> ORDER [label="billing", taillabel="1", headlabel="0..*", labeldistance=2.0];
+  ORDER -> ORDER_ITEM [taillabel="1", headlabel="1..*", labeldistance=2.0];
+  PRODUCT -> ORDER_ITEM [taillabel="1", headlabel="0..*", labeldistance=2.0];
+  ORDER -> PAYMENT [label="payment", taillabel="1", headlabel="0..1", labeldistance=2.0];
+  ORDER -> SHIPMENT [label="shipment", taillabel="1", headlabel="0..1", labeldistance=2.0];
+  ADDRESS -> SHIPMENT [label="delivery", taillabel="1", headlabel="0..*", labeldistance=2.0];
+  COUPON -> ORDER [label="coupon", taillabel="0..1", headlabel="0..*", labeldistance=2.0];
+
+}

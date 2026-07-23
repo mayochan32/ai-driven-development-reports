@@ -1,0 +1,71 @@
+classDiagram
+    direction TB
+
+    namespace OrderDomain {
+        class Order {
+            +OrderId id
+            +OrderStatus status
+            +Money total
+            +addLine(product, quantity)
+            +applyDiscount(policy)
+            +confirm()
+            +cancel()
+        }
+        class OrderLine {
+            +ProductId productId
+            +int quantity
+            +Money unitPrice
+            +subtotal() Money
+        }
+        class DiscountPolicy {
+            <<interface>>
+            +discountFor(order) Money
+        }
+        class PercentageDiscount {
+            +decimal rate
+            +discountFor(order) Money
+        }
+        class CouponDiscount {
+            +String couponCode
+            +discountFor(order) Money
+        }
+    }
+
+    namespace CustomerDomain {
+        class Customer {
+            +CustomerId id
+            +String name
+            +placeOrder()
+        }
+    }
+
+    namespace CatalogDomain {
+        class Product {
+            +ProductId id
+            +String name
+            +Money price
+        }
+    }
+
+    namespace Fulfillment {
+        class Payment {
+            +PaymentId id
+            +PaymentStatus status
+            +authorize()
+            +refund()
+        }
+        class Shipment {
+            +ShipmentId id
+            +ShipmentStatus status
+            +arrange()
+        }
+    }
+
+    Customer "1" --> "0..*" Order : places
+    Order "1" *-- "1..*" OrderLine : contains
+    OrderLine "*" --> "1" Product : references
+    Order "1" o-- "0..1" Payment : payment
+    Order "1" o-- "0..1" Shipment : shipment
+    Order --> DiscountPolicy : applies
+    DiscountPolicy <|.. PercentageDiscount
+    DiscountPolicy <|.. CouponDiscount

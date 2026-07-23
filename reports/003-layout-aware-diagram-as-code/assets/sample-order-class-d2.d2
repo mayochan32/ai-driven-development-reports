@@ -1,0 +1,117 @@
+direction: down
+
+classes: {
+  domain: {
+    style: {
+      fill: "#ffffff"
+      stroke: "#9cb7ac"
+      border-radius: 3
+      font-color: "#17201c"
+    }
+  }
+}
+
+order_domain: Order Domain {
+  class: domain
+  direction: down
+
+  order: Order {
+    shape: class
+    +id: OrderId
+    +status: OrderStatus
+    +total: Money
+    "+addLine(product, quantity)"
+    "+applyDiscount(policy)"
+    "+confirm()"
+    "+cancel()"
+  }
+
+  line: OrderLine {
+    shape: class
+    +productId: ProductId
+    +quantity: int
+    +unitPrice: Money
+    "+subtotal()": Money
+  }
+
+  policy: "«interface»\nDiscountPolicy" {
+    shape: class
+    "+discountFor(order)": Money
+  }
+
+  percentage: PercentageDiscount {
+    shape: class
+    +rate: decimal
+    "+discountFor(order)": Money
+  }
+
+  coupon_discount: CouponDiscount {
+    shape: class
+    +couponCode: String
+    "+discountFor(order)": Money
+  }
+
+  order -> line: "contains 1 : 1..*" {
+    source-arrowhead.shape: diamond
+  }
+  order -> policy: applies {
+    style.stroke-dash: 4
+  }
+  percentage -> policy: implements {
+    style.stroke-dash: 4
+    target-arrowhead.shape: triangle
+  }
+  coupon_discount -> policy: implements {
+    style.stroke-dash: 4
+    target-arrowhead.shape: triangle
+  }
+}
+
+customer_domain: Customer Domain {
+  class: domain
+  customer: Customer {
+    shape: class
+    +id: CustomerId
+    +name: String
+    "+placeOrder()"
+  }
+}
+
+catalog_domain: Catalog Domain {
+  class: domain
+  product: Product {
+    shape: class
+    +id: ProductId
+    +name: String
+    +price: Money
+  }
+}
+
+fulfillment: Fulfillment {
+  class: domain
+  direction: right
+
+  payment: Payment {
+    shape: class
+    +id: PaymentId
+    +status: PaymentStatus
+    "+authorize()"
+    "+refund()"
+  }
+
+  shipment: Shipment {
+    shape: class
+    +id: ShipmentId
+    +status: ShipmentStatus
+    "+arrange()"
+  }
+}
+
+customer_domain.customer -> order_domain.order: "places 1 : 0..*"
+order_domain.line -> catalog_domain.product: "references * : 1"
+order_domain.order -> fulfillment.payment: "payment 1 : 0..1" {
+  source-arrowhead.shape: diamond
+}
+order_domain.order -> fulfillment.shipment: "shipment 1 : 0..1" {
+  source-arrowhead.shape: diamond
+}

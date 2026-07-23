@@ -1,0 +1,47 @@
+digraph OrderState {
+  graph [rankdir=TB, bgcolor="white", pad=0.25, nodesep=0.45, ranksep=0.6, fontname="Helvetica", label="注文ライフサイクルの状態遷移", labelloc=t];
+  node [shape=ellipse, style="filled", fillcolor="#F7FAF8", color="#45635A", fontname="Helvetica", fontsize=11];
+  edge [color="#52645D", fontname="Helvetica", fontsize=9, arrowsize=0.7];
+
+  start [shape=circle, label="", width=0.2, fillcolor="#17201C"];
+  end_cancel [shape=doublecircle, label="", width=0.22, fillcolor="#17201C"];
+  end_complete [shape=doublecircle, label="", width=0.22, fillcolor="#17201C"];
+  end_refund [shape=doublecircle, label="", width=0.22, fillcolor="#17201C"];
+
+  accepted [label="受付済み"];
+  checking [label="確認中"];
+  awaiting [label="支払待ち"];
+  unknown [label="支払不明", fillcolor="#FFF4CC", color="#A16207"];
+  paid [label="支払済み"];
+  preparing [label="配送準備中"];
+  shipped [label="発送済み"];
+  completed [label="完了", fillcolor="#E6F7ED", color="#15803D"];
+  cancelling [label="取消済み", fillcolor="#FDECEC", color="#B42318"];
+  refunding [label="返金待ち", fillcolor="#FDECEC", color="#B42318"];
+  refunded [label="返金済み", fillcolor="#E6F7ED", color="#15803D"];
+
+  start -> accepted;
+  accepted -> checking [label="在庫確保と審査を開始"];
+  accepted -> cancelling [label="ユーザー取消", color="#B42318"];
+  checking -> awaiting [label="在庫OK・審査承認"];
+  checking -> cancelling [label="在庫不足・審査拒否\n取消 / 在庫解放", color="#B42318"];
+  awaiting -> awaiting [label="再試行 [3回未満]", style=dashed];
+  awaiting -> unknown [label="タイムアウト"];
+  awaiting -> paid [label="決済成功"];
+  awaiting -> cancelling [label="失敗 / 在庫解放", color="#B42318"];
+  unknown -> unknown [label="照会 [処理中]", style=dashed];
+  unknown -> paid [label="成功を確認"];
+  unknown -> cancelling [label="失敗確認 / 在庫解放", color="#B42318"];
+  paid -> preparing [label="配送依頼"];
+  paid -> refunding [label="取消要求", color="#B42318"];
+  preparing -> shipped [label="配送業者へ引渡し"];
+  preparing -> refunding [label="配送前取消", color="#B42318"];
+  shipped -> completed [label="配達完了"];
+  refunding -> refunded [label="返金成功"];
+  cancelling -> end_cancel;
+  completed -> end_complete;
+  refunded -> end_refund;
+
+  {rank=same; awaiting; unknown}
+  {rank=same; cancelling; refunding}
+}

@@ -1,0 +1,59 @@
+---
+config:
+  layout: elk
+---
+
+sequenceDiagram
+    autonumber
+    actor User as ユーザー
+    participant Web as Web画面
+    participant Order as 注文サービス
+    participant Inventory as 在庫サービス
+    participant Fraud as 不正検知
+    participant Payment as 決済サービス
+    participant Broker as メッセージ基盤
+
+    User->>Web: 注文を確定
+    Web->>Order: 注文作成を依頼
+
+    par 在庫確保
+        Order->>Inventory: 在庫を引き当て
+        Inventory-->>Order: 引当結果
+    and 不正検知
+        Order->>Fraud: 審査を依頼
+        Fraud-->>Order: 審査結果
+    end
+
+    alt 在庫確保済み かつ 審査承認
+        Order->>Payment: 決済を依頼
+        alt 決済成功
+            Payment-->>Order: 決済ID
+            Order->>Order: 確定注文を保存
+            par 配送開始
+                Order-)Broker: 配送依頼を発行
+            and 通知開始
+                Order-)Broker: 確認通知を発行
+            end
+            Order-->>Web: 注文番号
+            Web-->>User: 注文完了
+        else 決済タイムアウト
+            Payment--x Order: 応答なし
+            loop 最大3回まで状態確認
+                Order->>Payment: 決済状態を照会
+                Payment-->>Order: 処理中または確定結果
+            end
+            alt 成功を確認
+                Order->>Order: 確定注文を保存
+                Order-->>Web: 注文番号
+                Web-->>User: 注文完了
+            else 失敗または不明
+                Order->>Inventory: 引当を解放
+                Order-->>Web: 注文失敗
+                Web-->>User: 再試行を案内
+            end
+        end
+    else 在庫不足 または 審査拒否
+        Order->>Inventory: 引当済みなら解放
+        Order-->>Web: 注文拒否
+        Web-->>User: 理由を表示
+    end
